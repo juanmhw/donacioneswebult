@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Donaciones</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1 class="mb-4 text-primary text-center">Dashboard de Donaciones</h1>
+
+        <div class="d-flex justify-content-end mb-3 gap-2">
+            <button class="btn btn-success" onclick="generarReporteCSV()">📄 Exportar CSV</button>
+            <button class="btn btn-danger" onclick="generarReportePDF()">🧾 Exportar PDF</button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Lista de Donaciones</h4>
+                <table class="table table-bordered table-striped shadow-sm bg-white">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Campaña</th>
+                            <th>Monto (Bs)</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaDonaciones"></tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Distribución por Campaña</h4>
+                <canvas id="graficoDonaciones" class="bg-white p-2 rounded shadow"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5097/api/Donaciones";
+
+        async function cargarDonaciones() {
+            try {
+                const res = await fetch(API_URL);
+                const donaciones = await res.json();
+                const tabla = document.getElementById("tablaDonaciones");
+                const resumenPorCampaña = {};
+
+                tabla.innerHTML = "";
+
+                donaciones.forEach(d => {
+                    tabla.innerHTML += `
+                                        <tr>
+                                            <td>${d.donacionId}</td>
+                                            <td>${d.campaniaId}</td>
+                                            <td>${d.monto.toFixed(2)}</td>
+                                            <td>${d.tipoDonacion}</td>
+                                        </tr>`;
+
+                    if (!resumenPorCampaña[d.campaniaId]) resumenPorCampaña[d.campaniaId] = 0;
+                    resumenPorCampaña[d.campaniaId] += d.monto;
+                });
+
+                const ctx = document.getElementById("graficoDonaciones").getContext("2d");
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(resumenPorCampaña).map(id => `Campaña ${id}`),
+                        datasets: [{
+                            label: 'Monto donado (Bs)',
+                            data: Object.values(resumenPorCampaña),
+                            backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Donaciones por Campaña' }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error al cargar donaciones:", error);
+            }
+        }
+
+        async function generarReporteCSV() {
+            try {
+                const res = await fetch(API_URL);
+                const donaciones = await res.json();
+
+                let csv = "ID,Campaña,Monto,Tipo,Fecha\n";
+                donaciones.forEach(d => {
+                    csv += `${d.donacionId},${d.campaniaId},${d.monto},${d.tipoDonacion},${new Date(d.fechaDonacion).toLocaleDateString()}\n`;
+                });
+
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "ReporteDonaciones.csv";
+                link.click();
+            } catch (error) {
+                console.error("Error al generar reporte CSV:", error);
+            }
+        }
+
+        async function generarReportePDF() {
+            try {
+                const res = await fetch(API_URL);
+                const donaciones = await res.json();
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFontSize(16);
+                doc.text("Reporte de Donaciones", 20, 20);
+                doc.setFontSize(10);
+
+                const headers = ["ID", "Campaña", "Monto", "Tipo", "Fecha"];
+                const rows = donaciones.map(d => [
+                    d.donacionId,
+                    d.campaniaId,
+                    d.monto.toFixed(2),
+                    d.tipoDonacion,
+                    new Date(d.fechaDonacion).toLocaleDateString()
+                ]);
+
+                doc.autoTable({
+                    head: [headers],
+                    body: rows,
+                    startY: 30
+                });
+
+                doc.save("ReporteDonaciones.pdf");
+            } catch (error) {
+                console.error("Error al generar reporte PDF:", error);
+            }
+        }
+
+        cargarDonaciones();
+    </script>
+</body>
+</html>
