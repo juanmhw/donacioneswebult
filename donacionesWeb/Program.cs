@@ -1,4 +1,5 @@
 using donacionesWeb.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,10 +15,21 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
+// Configuración de autenticación con cookie persistente
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(30); // Cookie válida por 30 días
+        options.SlidingExpiration = true; // Renueva el tiempo de expiración con cada actividad
+    });
+
 // Configuración específica para CampaniaService
 builder.Services.AddHttpClient<CampaniaService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5097/api/"); // Nota el /api/ al final
+    client.BaseAddress = new Uri("http://localhost:5097/api/");
     client.DefaultRequestHeaders.Accept.Add(
         new MediaTypeWithQualityHeaderValue("application/json"));
 });
@@ -49,7 +61,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios.
     app.UseHsts();
 }
 
@@ -58,11 +69,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication(); // Asegúrate de que esto esté antes de UseAuthorization
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
+
+app.Run();
 
 app.Run();
 

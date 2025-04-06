@@ -1,0 +1,197 @@
+﻿/* Estilos para las vistas de autenticación con paleta naranja más intensa */
+
+/* Variables de colores */
+:root {
+    --primary-color: #FF7E36; /* Naranja más intenso */
+    --secondary-color: #FFD8C2; /* Color secundario más cálido */
+    --accent-color: #FF954A; /* Acento naranja más intenso */
+    --text-color: #5D4B40;
+    --light-text: #8B6B5F;
+    --error-color: #FF6B6B;
+    --success-color: #6BCB77;
+    --box-shadow: 0 8px 20px rgba(249, 113, 52, 0.3);
+}
+
+/* Aplicar el fondo solo a la clase auth-page */
+body.auth-page {
+    background-image: url('/fondo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor principal */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 15px;
+}
+
+/* Caja de autenticación */
+.auth-box {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+    transform: translateY(20px);
+    opacity: 0.92;
+}
+
+.register-box {
+    max-width: 750px;
+}
+
+.auth-box.animate {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Encabezado */
+.auth-header {
+    background-color: var(--primary-color); /* Color sólido en vez de degradado */
+    padding: 20px;
+    text-align: center;
+    border-bottom: 4px solid var(--secondary-color);
+}
+
+    .auth-header h2 {
+        color: white;
+        margin: 0;
+        font-weight: 600;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+/* Cuerpo del formulario */
+.auth-body {
+    padding: 30px;
+}
+
+/* Grupos de formularios */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    display: block;
+}
+
+.input-group {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(107, 91, 77, 0.1);
+}
+
+.input-group-text {
+    background-color: var(--accent-color); /* Color sólido en vez de degradado */
+    border: none;
+    color: white;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.form-control {
+    border: 1px solid var(--secondary-color);
+    border-radius: 0;
+    padding: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(255, 126, 54, 0.25);
+    }
+
+/* Botones */
+.btn-primary {
+    background-color: var(--primary-color); /* Color sólido en vez de degradado */
+    border: none;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(249, 113, 52, 0.2);
+    margin-top: 10px;
+}
+
+    .btn-primary:hover {
+        background-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(249, 113, 52, 0.3);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+/* Pie de formulario */
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: var(--light-text);
+    border-top: 1px solid var(--secondary-color);
+    padding-top: 20px;
+}
+
+/* Enlaces */
+.login-link, .register-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+    .login-link:hover, .register-link:hover {
+        color: var(--accent-color);
+        text-decoration: underline;
+    }
+
+/* Validación */
+.text-danger {
+    color: var(--error-color) !important;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Checkbox */
+.form-check {
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+.form-check-label {
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-body {
+        padding: 20px;
+    }
+
+    .auth-box {
+        border-radius: 10px;
+    }
+}
