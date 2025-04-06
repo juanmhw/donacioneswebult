@@ -1,0 +1,104 @@
+﻿@model donacionesWeb.Models.ViewModels.RendicionCuentasViewModel
+
+@{
+    ViewData["Title"] = "Rendición de cuentas";
+}
+
+<div class="container mt-4">
+    <h2>Rendición de cuentas de tus donaciones</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total donado</h5>
+                    <p class="card-text display-4">@Model.TotalDonado.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Campañas apoyadas</h5>
+                    <p class="card-text display-4">@Model.CampaniasApoyadas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total de donaciones</h5>
+                    <p class="card-text display-4">@Model.MisDonaciones.Count</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-4">Detalles de tus donaciones</h3>
+
+    @if (Model.DonacionesConDestino.Any())
+    {
+        <div class="accordion mt-3" id="donacionesAccordion">
+            @foreach (var item in Model.DonacionesConDestino)
+            {
+                <div class="card mb-3">
+                    <div class="card-header" id="heading@(item.Donacion.DonacionId)">
+                        <h5 class="mb-0 d-flex justify-content-between">
+                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                    data-target="#collapse@(item.Donacion.DonacionId)"
+                                    aria-expanded="false" aria-controls="collapse@(item.Donacion.DonacionId)">
+                                Donación de @item.Donacion.Monto.ToString("C") (@item.Donacion.FechaDonacion?.ToString("dd/MM/yyyy"))
+                            </button>
+                            <span class="badge @(item.PorcentajeUtilizado >= 100 ? "badge-success" : "badge-warning")">
+                                @item.PorcentajeUtilizado.ToString("F1")% utilizado
+                            </span>
+                        </h5>
+                    </div>
+
+                    <div id="collapse@(item.Donacion.DonacionId)" class="collapse"
+                         aria-labelledby="heading@(item.Donacion.DonacionId)" data-parent="#donacionesAccordion">
+                        <div class="card-body">
+                            <p><strong>Tipo:</strong> @item.Donacion.TipoDonacion</p>
+                            <p><strong>Descripción:</strong> @(item.Donacion.Descripcion ?? "No especificada")</p>
+
+                            <h6 class="mt-3">Destino de los fondos:</h6>
+
+                            @if (item.Asignaciones.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Descripción</th>
+                                                <th>Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var asignacion in item.Asignaciones)
+                                            {
+                                                <tr>
+                                                    <td>@asignacion.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                                    <td>@asignacion.Descripcion</td>
+                                                    <td>@asignacion.MontoAsignado.ToString("C")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="alert alert-info">Aún no se han asignado los fondos de esta donación.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="alert alert-warning">Aún no has realizado donaciones.</p>
+    }
+</div>

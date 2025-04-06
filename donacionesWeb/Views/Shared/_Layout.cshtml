@@ -26,6 +26,12 @@
 		                    <li class="nav-item">
 			                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
 		                    </li>
+		                    @if (User.IsInRole("Donante"))
+		                    {
+			                    <li class="nav-item">
+				                    <a class="nav-link text-dark" asp-area="" asp-controller="RendicionCuentas" asp-action="Index">Rendición de Cuentas</a>
+			                    </li>
+		                    }
 		                    <li class="nav-item">
 			                    <a class="nav-link text-dark" asp-area="" asp-controller="Usuario" asp-action="Index">Usuario</a>
 		                    </li>
