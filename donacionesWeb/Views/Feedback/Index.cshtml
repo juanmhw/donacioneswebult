@@ -1,0 +1,58 @@
+﻿@model IEnumerable<donacionesWeb.Models.Feedback>
+
+@{
+	ViewData["Title"] = "Lista de Feedbacks";
+}
+
+<div class="container">
+	<h2>Feedbacks Recibidos</h2>
+    
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			@TempData["SuccessMessage"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
+    
+	<p>
+		<a asp-action="Create" class="btn btn-primary">Crear Nuevo Feedback</a>
+	</p>
+    
+	@if (Model.Any())
+	{
+		<table class="table table-striped">
+			<thead>
+			<tr>
+				<th>ID</th>
+				<th>Nombre</th>
+				<th>Asunto</th>
+				<th>Calificación</th>
+				<th>Fecha</th>
+				<th>Acciones</th>
+			</tr>
+			</thead>
+			<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>@item.Id</td>
+					<td>@item.Nombre</td>
+					<td>@item.Asunto</td>
+					<td>@item.Calificacion / 5</td>
+					<td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+					<td>
+						<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalles</a>
+					</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	}
+	else
+	{
+		<div class="alert alert-info">
+			No hay feedbacks registrados todavía.
+		</div>
+	}
+</div>
