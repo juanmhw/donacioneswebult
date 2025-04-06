@@ -1,3 +1,4 @@
+using donacionesWeb.Controllers;
 using donacionesWeb.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
@@ -52,6 +53,7 @@ builder.Services.AddScoped<DonacionService>();
 builder.Services.AddScoped<DonacionAsignacionService>();
 builder.Services.AddScoped<DetallesAsignacionService>();
 builder.Services.AddScoped<AsignacionService>();
+builder.Services.AddScoped<RendicionCuentasController>();
 
 // Nota: MensajeService estaba duplicado, lo he quitado
 
