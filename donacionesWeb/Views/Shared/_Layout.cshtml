@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/donacionesWeb.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -19,12 +20,33 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="Usuario" asp-action="Index">Usuario</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="Campania" asp-action="Index">Campaña</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="Donacion" asp-action="Index">Donacion</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="SaldosDonacion" asp-action="Index">Saldos</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="DonacionAsignacion" asp-action="Index">DonacionAsignacion</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="RespuestaMensaje" asp-action="Index">RespuestaMensaje</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="Asignacion" asp-action="Index">Asignacion</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="DetallesAsignacion" asp-action="Index">DetallesAsignacion</a>
+	                    </li>
+	                    <li class="nav-item">
+		                    <a class="nav-link text-dark" asp-area="" asp-controller="Mensaje" asp-action="Index">Mensaje</a>
+	                    </li>
                     </ul>
                 </div>
             </div>

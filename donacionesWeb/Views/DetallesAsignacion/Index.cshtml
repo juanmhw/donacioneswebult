@@ -1,0 +1,52 @@
+﻿@model IEnumerable<donacionesWeb.Models.DetallesAsignacion>
+
+@{
+	ViewData["Title"] = "Lista de Detalles de Asignación";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger">
+		@TempData["ErrorMessage"]
+	</div>
+}
+
+<p>
+	<a asp-action="Create" class="btn btn-success">Crear Nuevo</a>
+</p>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>@Html.DisplayNameFor(model => model.DetalleId)</th>
+		<th>@Html.DisplayNameFor(model => model.AsignacionId)</th>
+		<th>@Html.DisplayNameFor(model => model.Concepto)</th>
+		<th>@Html.DisplayNameFor(model => model.Cantidad)</th>
+		<th>@Html.DisplayNameFor(model => model.PrecioUnitario)</th>
+		<th>Acciones</th>
+	</tr>
+	</thead>
+	<tbody>
+	@foreach (var item in Model)
+	{
+		<tr>
+			<td>@Html.DisplayFor(modelItem => item.DetalleId)</td>
+			<td>@Html.DisplayFor(modelItem => item.AsignacionId)</td>
+			<td>@Html.DisplayFor(modelItem => item.Concepto)</td>
+			<td>@Html.DisplayFor(modelItem => item.Cantidad)</td>
+			<td>@Html.DisplayFor(modelItem => item.PrecioUnitario)</td>
+			<td>
+				<form asp-action="Delete" method="post">
+					<input type="hidden" name="id" value="@item.DetalleId" />
+					<button type="submit" class="btn btn-danger btn-sm" 
+					        onclick="return confirm('¿Está seguro de eliminar este detalle?')">
+						Eliminar
+					</button>
+				</form>
+			</td>
+		</tr>
+	}
+	</tbody>
+</table>

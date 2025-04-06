@@ -1,0 +1,44 @@
+﻿@model IEnumerable<donacionesWeb.Models.DonacionesAsignacione>
+
+@{
+	ViewData["Title"] = "Asignaciones de Donaciones";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+	<a asp-action="Create" class="btn btn-primary">Nueva Asignación</a>
+</p>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>Donación ID</th>
+		<th>Asignación ID</th>
+		<th>Monto</th>
+		<th>Fecha</th>
+		<th>Acciones</th>
+	</tr>
+	</thead>
+	<tbody>
+	@foreach (var item in Model)
+	{
+		<tr>
+			<td>@item.DonacionAsignacionId</td>
+			<td>@item.DonacionId</td>
+			<td>@item.AsignacionId</td>
+			<td>@item.MontoAsignado.ToString("C")</td>
+			<td>@item.FechaAsignacion?.ToString("d")</td>
+			<td>
+				<a asp-action="Details" asp-route-id="@item.DonacionAsignacionId" class="btn btn-info btn-sm">Detalles</a>
+				<form asp-action="Delete" method="post" style="display:inline">
+					<input type="hidden" name="id" value="@item.DonacionAsignacionId" />
+					<button type="submit" class="btn btn-danger btn-sm" 
+					        onclick="return confirm('¿Eliminar esta asignación?')">Eliminar</button>
+				</form>
+			</td>
+		</tr>
+	}
+	</tbody>
+</table>

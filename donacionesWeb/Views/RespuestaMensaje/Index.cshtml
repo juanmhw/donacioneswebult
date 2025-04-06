@@ -1,0 +1,119 @@
+﻿@model IEnumerable<donacionesWeb.Models.RespuestasMensaje>
+
+@{
+	ViewData["Title"] = "Respuestas a Mensajes";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger">
+		@TempData["ErrorMessage"]
+	</div>
+}
+
+<!-- Botón para abrir modal - Usando sintaxis BS5 -->
+<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#respuestaModal">
+	Agregar Respuesta
+</button>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>ID Mensaje</th>
+            <th>ID Usuario</th>
+            <th>Contenido</th>
+            <th>Fecha Respuesta</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.RespuestaId</td>
+                <td>@item.MensajeId</td>
+                <td>@item.UsuarioId</td>
+                <td>@item.Contenido</td>
+                <td>@item.FechaRespuesta?.ToString("g")</td>
+                <td>
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" name="id" value="@item.RespuestaId" />
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('¿Eliminar esta respuesta?')">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal para crear respuesta - Versión BS5 -->
+<div class="modal fade" id="respuestaModal" tabindex="-1" aria-labelledby="respuestaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="respuestaModalLabel">Nueva Respuesta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post" id="formRespuesta">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="MensajeId" class="form-label">ID Mensaje</label>
+                        <input type="number" class="form-control" id="MensajeId" name="MensajeId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="UsuarioId" class="form-label">ID Usuario</label>
+                        <input type="number" class="form-control" id="UsuarioId" name="UsuarioId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Contenido" class="form-label">Contenido</label>
+                        <textarea class="form-control" id="Contenido" name="Contenido" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Manejar el envío del formulario
+            $('#formRespuesta').on('submit', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#respuestaModal').modal('hide');
+                            window.location.reload();
+                        } else {
+                            alert(response.message || 'Error al crear la respuesta');
+                        }
+                    },
+                    error: function () {
+                        alert('Error en la comunicación con el servidor');
+                    }
+                });
+            });
+
+            // Reiniciar el formulario cuando se cierra el modal
+            $('#respuestaModal').on('hidden.bs.modal', function () {
+                $(this).find('form')[0].reset();
+            });
+        });
+    </script>
+}

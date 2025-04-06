@@ -1,0 +1,45 @@
+﻿@model donacionesWeb.Models.Mensaje
+
+@{
+	ViewData["Title"] = "Detalles del Mensaje";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-2">ID Mensaje</dt>
+		<dd class="col-sm-10">@Model.MensajeId</dd>
+        
+		<dt class="col-sm-2">Remitente</dt>
+		<dd class="col-sm-10">Usuario @Model.UsuarioOrigen</dd>
+        
+		<dt class="col-sm-2">Destinatario</dt>
+		<dd class="col-sm-10">@(Model.UsuarioDestino.HasValue ? $"Usuario {Model.UsuarioDestino}" : "Todos")</dd>
+        
+		<dt class="col-sm-2">Asunto</dt>
+		<dd class="col-sm-10">@Model.Asunto</dd>
+        
+		<dt class="col-sm-2">Fecha</dt>
+		<dd class="col-sm-10">@Model.FechaEnvio?.ToString("g")</dd>
+        
+		<dt class="col-sm-2">Contenido</dt>
+		<dd class="col-sm-10">@Model.Contenido</dd>
+        
+		<dt class="col-sm-2">Estado</dt>
+		<dd class="col-sm-10">
+			@if(Model.Leido == true) {
+				<span class="badge bg-success">Leído</span>
+			} else {
+				<span class="badge bg-warning text-dark">No leído</span>
+			}
+			@if(Model.Respondido == true) {
+				<span class="badge bg-info ms-2">Respondido</span>
+			}
+		</dd>
+	</dl>
+</div>
+<div>
+	<a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+</div>

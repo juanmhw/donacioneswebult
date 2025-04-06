@@ -1,0 +1,42 @@
+﻿@model donacionesWeb.Models.Donacione
+
+@{
+    ViewData["Title"] = "Detalles de Donación";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID Donación</dt>
+        <dd class="col-sm-10">@Model.DonacionId</dd>
+
+        <dt class="col-sm-2">Usuario</dt>
+        <dd class="col-sm-10">@(Model.UsuarioId.HasValue ? Model.UsuarioId.ToString() : "Anónimo")</dd>
+
+        <dt class="col-sm-2">Campaña</dt>
+        <dd class="col-sm-10">@Model.CampaniaId</dd>
+
+        <dt class="col-sm-2">Monto</dt>
+        <dd class="col-sm-10">@Model.Monto.ToString("C")</dd>
+
+        <dt class="col-sm-2">Tipo</dt>
+        <dd class="col-sm-10">@Model.TipoDonacion</dd>
+
+        <dt class="col-sm-2">Descripción</dt>
+        <dd class="col-sm-10">@Model.Descripcion</dd>
+
+        <dt class="col-sm-2">Fecha</dt>
+        <dd class="col-sm-10">@Model.FechaDonacion?.ToString("g")</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">@Model.EstadoId</dd>
+
+        <dt class="col-sm-2">Anónima</dt>
+        <dd class="col-sm-10">@(Model.EsAnonima == true ? "Sí" : "No")</dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+</div>

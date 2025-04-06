@@ -1,0 +1,106 @@
+﻿@model donacionesWeb.Models.Campania
+
+@{
+    ViewData["Title"] = "Crear Campaña";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Crear Nueva Campaña</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Create" id="campaniaForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Titulo" class="form-label"></label>
+                    <input asp-for="Titulo" class="form-control" placeholder="Ingrese el título de la campaña" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Descripcion" class="form-label"></label>
+                    <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Describa la campaña"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="FechaInicio" class="form-label"></label>
+                        <input asp-for="FechaInicio" type="date" class="form-control"
+                               value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="FechaFin" class="form-label"></label>
+                        <input asp-for="FechaFin" type="date" class="form-control" />
+                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="MetaRecaudacion" class="form-label"></label>
+                        <input asp-for="MetaRecaudacion" class="form-control" placeholder="0.00" />
+                        <span asp-validation-for="MetaRecaudacion" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="UsuarioIdcreador" class="form-label"></label>
+                        <input asp-for="UsuarioIdcreador" class="form-control" />
+                        <span asp-validation-for="UsuarioIdcreador" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+	                @{
+		                // Solución 1: Convertir a bool no-nulo con valor por defecto
+		                var activaValue = Model?.Activa ?? true;
+	                }
+	                <input type="checkbox" class="form-check-input" 
+	                       name="Activa" id="Activa" 
+	                       @(activaValue ? "checked" : "") value="true" />
+	                <input type="hidden" name="Activa" value="false" />
+	                <label class="form-check-label" for="Activa">Activa</label>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary me-md-2">
+                        <i class="fas fa-save"></i> Crear Campaña
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Formato de fechas
+            $('input[type="date"]').each(function () {
+                if (!$(this).val()) {
+                    $(this).val(new Date().toISOString().substring(0, 10));
+                }
+            });
+
+            // Validación del formulario
+            $('#campaniaForm').submit(function () {
+                const titulo = $('#Titulo').val().trim();
+                const descripcion = $('#Descripcion').val().trim();
+
+                if (!titulo || !descripcion) {
+                    alert('Por favor complete todos los campos requeridos');
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+}

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<donacionesWeb.Models.SaldosDonacione>
+
+@{
+	ViewData["Title"] = "Saldos de Donaciones";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger">
+		@TempData["ErrorMessage"]
+	</div>
+}
+
+<table class="table table-striped">
+	<thead class="thead-dark">
+	<tr>
+		<th>ID Saldo</th>
+		<th>ID Donación</th>
+		<th>Monto Original</th>
+		<th>Monto Utilizado</th>
+		<th>Saldo Disponible</th>
+		<th>Última Actualización</th>
+		<th>Acciones</th>
+	</tr>
+	</thead>
+	<tbody>
+	@foreach (var item in Model)
+	{
+		<tr>
+			<td>@Html.DisplayFor(modelItem => item.SaldoId)</td>
+			<td>@Html.DisplayFor(modelItem => item.DonacionId)</td>
+			<td>@Html.DisplayFor(modelItem => item.MontoOriginal)</td>
+			<td>@Html.DisplayFor(modelItem => item.MontoUtilizado)</td>
+			<td>@Html.DisplayFor(modelItem => item.SaldoDisponible)</td>
+			<td>@Html.DisplayFor(modelItem => item.UltimaActualizacion)</td>
+			<td>
+				<form asp-action="Delete" method="post">
+					<input type="hidden" name="id" value="@item.SaldoId" />
+					<button type="submit" class="btn btn-danger btn-sm" 
+					        onclick="return confirm('¿Está seguro de eliminar este registro?')">
+						Eliminar
+					</button>
+				</form>
+			</td>
+		</tr>
+	}
+	</tbody>
+</table>
