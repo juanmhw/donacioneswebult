@@ -1,0 +1,122 @@
+﻿@model donacionesWeb.Models.ViewModels.BandejaEntradaAdminViewModel
+@{
+    ViewData["Title"] = "Conversaciones - Administrador";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-chat-dots"></i> Conversaciones</h2>
+            <p class="text-muted">Gestiona las conversaciones con los usuarios</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-info fs-6">@Model.Conversaciones.Count conversaciones activas</span>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-inbox"></i> Lista de Conversaciones</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Conversaciones.Any())
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var conversacion in Model.Conversaciones)
+                    {
+                        <a asp-action="Detalle" asp-route-usuarioId="@conversacion.UsuarioId"
+                           class="list-group-item list-group-item-action @(!conversacion.EsLeido ? "list-group-item-primary" : "")">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar-circle me-3 @(!conversacion.EsLeido ? "bg-primary" : "bg-secondary")">
+                                            <i class="bi bi-person text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">@conversacion.NombreUsuario</h6>
+                                            <small class="text-muted">@conversacion.EmailUsuario</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-1 text-truncate" style="max-width: 400px;">
+                                        @if (!string.IsNullOrEmpty(conversacion.UltimoMensaje))
+                                        {
+                                            @(conversacion.UltimoMensaje.Length > 60 ?
+                                                conversacion.UltimoMensaje.Substring(0, 60) + "..." :
+                                                conversacion.UltimoMensaje)
+                                        }
+                                        else
+                                        {
+                                            <em class="text-muted">Sin mensajes</em>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    @if (!conversacion.EsLeido)
+                                    {
+                                        <span class="badge bg-primary mb-2">Nuevo</span>
+
+                                        <br />
+                                    }
+                                    @if (conversacion.FechaUltimoMensaje.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            @conversacion.FechaUltimoMensaje.Value.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    }
+                                    <div class="mt-2">
+                                        <i class="bi bi-chevron-right text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="p-5 text-center">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No hay conversaciones</h4>
+                    <p class="text-muted">Cuando los usuarios te envíen mensajes, aparecerán aquí.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    .list-group-item-primary {
+        background-color: rgba(13, 110, 253, 0.1);
+        border-left: 4px solid #0d6efd;
+    }
+</style>

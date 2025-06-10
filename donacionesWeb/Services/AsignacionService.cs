@@ -1,4 +1,5 @@
 ﻿using donacionesWeb.Models;
+using System.Text;
 using System.Text.Json;
 
 namespace donacionesWeb.Services
@@ -46,6 +47,46 @@ namespace donacionesWeb.Services
                 throw;
             }
         }
+
+        public async Task<Asignacione> UpdateAsync(int id, Asignacione asignacion)
+        {
+            try
+            {
+                asignacion.FechaAsignacion ??= DateTime.Now;
+                asignacion.Descripcion ??= "Asignación actualizada automáticamente";
+                if (asignacion.CampaniaId == 0) asignacion.CampaniaId = 1;
+                if (asignacion.UsuarioId == 0) asignacion.UsuarioId = 1;
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(asignacion, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PutAsync($"Asignaciones/{id}", content);
+
+                // ✅ No hay contenido, pero es éxito
+                if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    return asignacion;
+
+                response.EnsureSuccessStatusCode();
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(responseString))
+                    return asignacion;
+
+                return JsonSerializer.Deserialize<Asignacione>(responseString, options)
+                    ?? asignacion;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en UpdateAsync: {ex.Message}");
+                throw;
+            }
+        }
+
 
         public async Task DeleteAsync(int id)
         {

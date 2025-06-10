@@ -1,0 +1,209 @@
+﻿/* Estilos para la página de Estadísticas de Comentarios */
+
+:root {
+    --naranja-principal: #FF7043;
+    --naranja-claro: #FFA270;
+    --rojo-oscuro: #A13E2B;
+    --beige: #FFF2E6;
+    --blanco: #FFFFFF;
+    --texto-oscuro: #333333;
+    --gris-claro: #f5f5f5;
+}
+
+body {
+    background-color: var(--beige);
+    color: var(--texto-oscuro);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor principal */
+.container {
+    background-color: var(--blanco);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(161, 62, 43, 0.1);
+    padding: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+/* Encabezado */
+h1 {
+    color: var(--rojo-oscuro);
+    font-weight: 700;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid var(--naranja-claro);
+    text-align: center;
+}
+
+/* Tarjetas */
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+    overflow: hidden;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+.shadow {
+    box-shadow: 0 8px 20px rgba(255, 112, 67, 0.15) !important;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.card-title {
+    color: var(--rojo-oscuro);
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+/* Calificación promedio */
+.display-1 {
+    color: var(--naranja-principal) !important;
+    font-size: 5rem !important;
+    font-weight: 700 !important;
+    margin: 15px 0;
+}
+
+.text-warning {
+    color: var(--naranja-principal) !important;
+}
+
+.text-muted {
+    color: #666 !important;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* Distribución de calificaciones */
+.progress {
+    height: 25px !important;
+    background-color: rgba(255, 162, 112, 0.2);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, var(--naranja-principal), var(--rojo-oscuro)) !important;
+    color: var(--blanco);
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: width 1s ease-in-out;
+}
+
+    .progress-bar:hover {
+        background: linear-gradient(to right, var(--rojo-oscuro), var(--naranja-principal)) !important;
+    }
+
+/* Estrellas */
+.star-rating {
+    display: inline-block;
+    font-size: 2rem;
+    margin-right: 5px;
+    color: var(--naranja-principal);
+}
+
+/* Botones */
+.btn-secondary {
+    background-color: var(--naranja-principal);
+    border-color: var(--naranja-principal);
+    color: var(--blanco);
+    font-weight: 600;
+    padding: 10px 25px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 112, 67, 0.3);
+}
+
+    .btn-secondary:hover {
+        background-color: var(--rojo-oscuro);
+        border-color: var(--rojo-oscuro);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(161, 62, 43, 0.4);
+    }
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.row {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Personalización de calificaciones por nivel */
+.rating-5 .progress-bar {
+    background: linear-gradient(to right, var(--naranja-principal), var(--rojo-oscuro)) !important;
+}
+
+.rating-4 .progress-bar {
+    background: linear-gradient(to right, var(--naranja-claro), var(--naranja-principal)) !important;
+}
+
+.rating-3 .progress-bar {
+    background-color: var(--naranja-claro) !important;
+}
+
+.rating-2 .progress-bar {
+    background-color: #FFB74D !important;
+}
+
+.rating-1 .progress-bar {
+    background-color: #FFCC80 !important;
+}
+
+/* Contador de calificaciones */
+.rating-count {
+    font-weight: bold;
+    color: var(--rojo-oscuro);
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* Etiqueta de estrellas */
+.star-label {
+    font-weight: 600;
+    color: var(--texto-oscuro);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+
+    .display-1 {
+        font-size: 4rem !important;
+    }
+
+    .star-label {
+        width: 60px !important;
+    }
+
+    .rating-count {
+        width: 40px !important;
+    }
+}

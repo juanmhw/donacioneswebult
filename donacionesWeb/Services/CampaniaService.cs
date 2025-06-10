@@ -41,7 +41,8 @@ namespace donacionesWeb.Services
                     montoRecaudado = campania.MontoRecaudado ?? 0,
                     usuarioIdcreador = campania.UsuarioIdcreador,
                     activa = campania.Activa ?? true,
-                    fechaCreacion = DateTime.Now
+                    fechaCreacion = DateTime.Now,
+                    imagenUrl = campania.ImagenUrl
                 };
 
                 var options = new JsonSerializerOptions
@@ -65,6 +66,39 @@ namespace donacionesWeb.Services
             {
                 Console.WriteLine($"Error en servicio: {ex.Message}");
                 throw;
+            }
+        }
+
+        public async Task UpdateAsync(int id, Campania campania)
+        {
+            var campaniaApi = new
+            {
+                titulo = campania.Titulo,
+                descripcion = campania.Descripcion,
+                fechaInicio = DateOnly.FromDateTime(campania.FechaInicio),
+                fechaFin = campania.FechaFin.HasValue ?
+                          DateOnly.FromDateTime(campania.FechaFin.Value) :
+                          (DateOnly?)null,
+                metaRecaudacion = campania.MetaRecaudacion,
+                montoRecaudado = campania.MontoRecaudado ?? 0,
+                usuarioIdcreador = campania.UsuarioIdcreador,
+                activa = campania.Activa ?? true,
+                fechaCreacion = campania.FechaCreacion,
+                imagenUrl = campania.ImagenUrl
+            };
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new DateOnlyJsonConverter() }
+            };
+
+            var response = await _httpClient.PutAsJsonAsync($"Campanias/{id}", campaniaApi, options);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error API: {response.StatusCode} - {errorContent}");
             }
         }
 

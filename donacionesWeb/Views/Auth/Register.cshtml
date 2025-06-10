@@ -1,6 +1,7 @@
 ﻿@model donacionesWeb.Models.ViewModels.RegisterViewModel
 @{
     ViewData["Title"] = "Registro";
+    Layout = "_AuthLayout"; // Usar el layout específico de autenticación
 }
 
 <div class="auth-container">
@@ -9,8 +10,17 @@
             <h2>@ViewData["Title"]</h2>
         </div>
         <div class="auth-body">
-            <form asp-action="Register" method="post">
+            <form asp-action="Register" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group text-center">
+                    <label asp-for="Imagen" class="form-label">Foto de perfil (opcional)</label>
+                    <div class="input-group mb-3 justify-content-center">
+                        <input asp-for="Imagen" type="file" class="form-control w-auto" />
+                    </div>
+                    <span asp-validation-for="Imagen" class="text-danger"></span>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -33,6 +43,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="Email" class="form-label"></label>
                     <div class="input-group">
@@ -41,6 +52,7 @@
                     </div>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="Telefono" class="form-label"></label>
                     <div class="input-group">
@@ -49,6 +61,7 @@
                     </div>
                     <span asp-validation-for="Telefono" class="text-danger"></span>
                 </div>
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -71,6 +84,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary w-100">Registrarse</button>
                 </div>
@@ -87,7 +101,6 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        // Añadir efectos si se desea
         $(document).ready(function () {
             $('.auth-box').addClass('animate');
         });

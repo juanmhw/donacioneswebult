@@ -10,5 +10,9 @@
         public DateTime? FechaEnvio { get; set; }
         public bool? Leido { get; set; }
         public bool? Respondido { get; set; }
+
+
+        public string? NombreUsuarioOrigen { get; set; }
+        public string? NombreUsuarioDestino { get; set; }
     }
 }

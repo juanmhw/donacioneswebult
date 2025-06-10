@@ -1,58 +1,61 @@
 ﻿@model IEnumerable<donacionesWeb.Models.Feedback>
-
 @{
-	ViewData["Title"] = "Lista de Feedbacks";
+    ViewData["Title"] = "Todos los comentarios";
 }
-
-<div class="container">
-	<h2>Feedbacks Recibidos</h2>
-    
-	@if (TempData["SuccessMessage"] != null)
-	{
-		<div class="alert alert-success alert-dismissible fade show" role="alert">
-			@TempData["SuccessMessage"]
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-	}
-    
-	<p>
-		<a asp-action="Create" class="btn btn-primary">Crear Nuevo Feedback</a>
-	</p>
-    
-	@if (Model.Any())
-	{
-		<table class="table table-striped">
-			<thead>
-			<tr>
-				<th>ID</th>
-				<th>Nombre</th>
-				<th>Asunto</th>
-				<th>Calificación</th>
-				<th>Fecha</th>
-				<th>Acciones</th>
-			</tr>
-			</thead>
-			<tbody>
-			@foreach (var item in Model)
-			{
-				<tr>
-					<td>@item.Id</td>
-					<td>@item.Nombre</td>
-					<td>@item.Asunto</td>
-					<td>@item.Calificacion / 5</td>
-					<td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
-					<td>
-						<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalles</a>
-					</td>
-				</tr>
-			}
-			</tbody>
-		</table>
-	}
-	else
-	{
-		<div class="alert alert-info">
-			No hay feedbacks registrados todavía.
-		</div>
-	}
+<div class="container py-4">
+    <h1 class="main-title">Gestión de comentarios</h1>
+    <div class="stats-panel mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-0">Total de comentarios: <span class="badge badge-count">@Model.Count()</span></p>
+            <div>
+                <a asp-action="Estadisticas" class="btn btn-stats">
+                    <i class="bi bi-graph-up"></i> Ver estadísticas
+                </a>
+            </div>
+        </div>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-custom" role="alert">
+            No hay comentarios registrados todavía.
+        </div>
+    }
+    else
+    {
+        <div class="table-container">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Calificación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderByDescending(f => f.FechaCreacion))
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@item.Nombre</td>
+                            <td>@item.Email</td>
+                            <td class="rating-cell">
+                                @for (int i = 0; i < item.Calificacion; i++)
+                                {
+                                    <span class="star-icon">⭐</span>
+                                }
+                                <span class="rating-text">@item.Calificacion/5</span>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-action">Ver detalles</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

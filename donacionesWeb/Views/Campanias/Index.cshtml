@@ -1,0 +1,468 @@
+﻿@model IEnumerable<donacionesWeb.Models.Campania>
+@{
+    ViewData["Title"] = "Listado de Campañas";
+    Layout = "_Layout";
+}
+
+<style>
+    :root {
+        --primary-coral: #FF6B4A;
+        --primary-coral-dark: #E55A42;
+        --primary-coral-light: #FF8A70;
+        --coral-gradient: linear-gradient(135deg, #FF6B4A 0%, #FF8A70 100%);
+        --text-dark: #2D3748;
+        --text-muted: #718096;
+        --bg-light: #F7FAFC;
+        --border-light: #E2E8F0;
+        --success: #48BB78;
+        --info: #4299E1;
+        --warning: #ED8936;
+        --danger: #E53E3E;
+    }
+
+    .header-section {
+        background: var(--coral-gradient);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(255, 107, 74, 0.15);
+    }
+
+    .header-title {
+        color: white;
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        gap: 1rem;
+    }
+
+    .btn-primary-custom {
+        background: var(--coral-gradient);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        color: white;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(255, 107, 74, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 74, 0.4);
+            background: linear-gradient(135deg, #E55A42 0%, #FF6B4A 100%);
+            color: white;
+            text-decoration: none;
+        }
+
+    .campaigns-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .campaign-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+        height: fit-content;
+    }
+
+        .campaign-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+    .campaign-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: linear-gradient(45deg, #f0f2f5, #e9ecef);
+    }
+
+    .campaign-content {
+        padding: 1.5rem;
+    }
+
+    .campaign-title {
+        color: var(--text-dark);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .campaign-description {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .campaign-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: var(--bg-light);
+        border-radius: 8px;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .progress-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .progress-percentage {
+        color: var(--primary-coral);
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .progress {
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        background: var(--coral-gradient);
+        transition: width 0.6s ease;
+    }
+
+    .campaign-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .status-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-active {
+        background: rgba(72, 187, 120, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(72, 187, 120, 0.2);
+    }
+
+    .status-inactive {
+        background: rgba(113, 128, 150, 0.1);
+        color: var(--text-muted);
+        border: 1px solid rgba(113, 128, 150, 0.2);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+    }
+
+    .btn-edit {
+        background: rgba(66, 153, 225, 0.1);
+        color: var(--info);
+    }
+
+        .btn-edit:hover {
+            background: rgba(66, 153, 225, 0.2);
+            transform: scale(1.05);
+        }
+
+    .btn-delete {
+        background: rgba(229, 62, 62, 0.1);
+        color: var(--danger);
+    }
+
+        .btn-delete:hover {
+            background: rgba(229, 62, 62, 0.2);
+            transform: scale(1.05);
+        }
+
+    .btn-view {
+        background: rgba(237, 137, 54, 0.1);
+        color: var(--warning);
+    }
+
+        .btn-view:hover {
+            background: rgba(237, 137, 54, 0.2);
+            transform: scale(1.05);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .empty-state-description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Responsive adjustments */
+    .responsive-mobile .campaigns-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .responsive-mobile .header-section {
+        padding: 1.5rem;
+    }
+
+    .responsive-mobile .header-title {
+        font-size: 1.75rem;
+    }
+
+    .responsive-mobile .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .responsive-mobile .campaign-stats {
+        grid-template-columns: 1fr;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="header-section">
+        <h1 class="header-title">
+            <i class="bi bi-bookmark-star"></i>
+            Gestión de Campañas
+        </h1>
+        <p class="header-subtitle">Administra y monitorea todas las campañas de donación activas</p>
+    </div>
+
+    <div class="action-bar">
+        <div>
+            <h5 class="mb-0" style="color: var(--text-dark); font-weight: 600;">
+                @(Model?.Count() ?? 0) campañas registradas
+            </h5>
+        </div>
+        <a asp-action="Crear" class="btn-primary-custom">
+            <i class="bi bi-plus-circle"></i>
+            Nueva Campaña
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="campaigns-grid">
+            @foreach (var item in Model)
+            {
+                var porcentaje = item.MetaRecaudacion > 0 ? ((item.MontoRecaudado ?? 0) / item.MetaRecaudacion * 100) : 0;
+                var porcentajeRedondeado = Math.Round(porcentaje, 1);
+
+                <div class="campaign-card">
+                    @if (!string.IsNullOrWhiteSpace(item.ImagenUrl))
+                    {
+                        <img src="@item.ImagenUrl" alt="@item.Titulo" class="campaign-image" />
+                    }
+                    else
+                    {
+                        <div class="campaign-image d-flex align-items-center justify-content-center" style="color: #999;">
+                            <i class="bi bi-image" style="font-size: 3rem;"></i>
+                        </div>
+                    }
+
+                    <div class="campaign-content">
+                        <h3 class="campaign-title">@item.Titulo</h3>
+                        <p class="campaign-description">@item.Descripcion</p>
+
+                        <div class="campaign-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Meta</div>
+                                <div class="stat-value">Bs @item.MetaRecaudacion.ToString("N2")</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Recaudado</div>
+                                <div class="stat-value">Bs @(item.MontoRecaudado ?? 0)</div>
+                            </div>
+                        </div>
+
+                        <div class="campaign-footer">
+                            <div>
+                                @if (item.Activa == true)
+                                {
+                                    <span class="status-badge status-active">
+                                        <i class="bi bi-check-circle"></i> Activa
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-inactive">
+                                        <i class="bi bi-pause-circle"></i> Inactiva
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-bookmark-star"></i>
+            </div>
+            <h3 class="empty-state-title">No hay campañas registradas</h3>
+            <p class="empty-state-description">
+                Comienza creando tu primera campaña de donación para empezar a recaudar fondos.
+            </p>
+            <a asp-action="Crear" class="btn-primary-custom">
+                <i class="bi bi-plus-circle"></i>
+                Crear Primera Campaña
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+    // Mejorar la experiencia de hover en las cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.campaign-card');
+
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Animar las barras de progreso
+        const progressBars = document.querySelectorAll('.progress-bar');
+
+        const animateProgressBars = () => {
+            progressBars.forEach(bar => {
+                const targetWidth = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 100);
+            });
+        };
+
+        // Observador para animar cuando las barras entren en viewport
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const progressBar = entry.target.querySelector('.progress-bar');
+                    if (progressBar) {
+                        const targetWidth = progressBar.style.width;
+                        progressBar.style.width = '0%';
+                        setTimeout(() => {
+                            progressBar.style.width = targetWidth;
+                        }, 200);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.progress-section').forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>

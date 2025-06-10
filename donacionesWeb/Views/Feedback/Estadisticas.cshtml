@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Estadísticas de comentarios";
+    var promedio = (double)ViewData["Promedio"];
+    var total = (int)ViewData["Total"];
+    var distribucion = (Dictionary<int, int>)ViewData["Distribucion"];
+}
+
+<div class="container py-5">
+    <h1>Estadísticas de comentarios</h1>
+
+    <div class="row mt-5">
+        <!-- Tarjeta de calificación promedio -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Calificación promedio</h3>
+                    <div class="display-1">@promedio.ToString("F1")</div>
+                    <div class="mt-3">
+                        @for (int i = 0; i < Math.Round(promedio); i++)
+                        {
+                            <span class="text-warning fs-3">⭐</span>
+                        }
+                    </div>
+                    <p class="text-muted mt-3">Basado en @total comentarios</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de distribución de calificaciones -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h3 class="card-title">Distribución de calificaciones</h3>
+
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        var count = distribucion[i];
+                        var percentage = total > 0 ? (count * 100) / total : 0;
+                        <div class="mb-4 rating-@i">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="star-label me-3" style="width: 80px;">
+                                    @i <span class="text-warning">⭐</span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: @percentage%;"
+                                             aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                            @percentage%
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="rating-count ms-3" style="width: 50px;">
+                                    @count
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de volver -->
+    <div class="text-center mt-5">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver a comentarios
+        </a>
+    </div>
+</div>

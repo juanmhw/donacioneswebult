@@ -1,0 +1,160 @@
+﻿/* Paleta de colores basada en la imagen */
+:root {
+    --color-primary: #FF7043; /* Naranja principal */
+    --color-secondary: #FFA270; /* Naranja claro */
+    --color-accent: #A13E2B; /* Rojo oscuro */
+    --color-background: #FFF2E6; /* Beige/Crema de fondo */
+    --color-white: #FFFFFF; /* Blanco para contenido */
+    --color-text-dark: #333333; /* Texto oscuro */
+    --color-text-light: #FFFFFF; /* Texto claro */
+    --color-border: #E0E0E0; /* Bordes sutiles */
+    --color-hover: #FF8A65; /* Color hover */
+    --radius-sm: 4px; /* Bordes redondeados pequeños */
+    --radius-md: 8px; /* Bordes redondeados medianos */
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.08); /* Sombra para tarjetas */
+}
+
+/* Estilos generales */
+body {
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    background-color: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 2rem;
+}
+
+/* Títulos */
+.main-title {
+    color: var(--color-accent);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 0.75rem;
+}
+
+/* Panel de estadísticas */
+.stats-panel {
+    background-color: var(--color-background);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    border-left: 4px solid var(--color-primary);
+}
+
+.badge-count {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--radius-sm);
+}
+
+/* Botones */
+.btn-stats {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s;
+}
+
+    .btn-stats:hover {
+        background-color: var(--color-hover);
+        color: var(--color-text-light);
+    }
+
+.btn-action {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    transition: background-color 0.2s;
+}
+
+    .btn-action:hover {
+        background-color: var(--color-accent);
+        color: var(--color-text-light);
+    }
+
+/* Alertas */
+.alert-custom {
+    background-color: var(--color-secondary);
+    color: var(--color-text-dark);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+}
+
+/* Tabla */
+.table-container {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+.table-custom {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+    .table-custom thead {
+        background-color: var(--color-primary);
+        color: var(--color-text-light);
+    }
+
+    .table-custom th {
+        padding: 1rem;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .table-custom tbody tr:nth-child(odd) {
+        background-color: rgba(255, 112, 67, 0.05);
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: rgba(255, 112, 67, 0.1);
+    }
+
+    .table-custom td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+/* Celdas de calificación */
+.rating-cell {
+    display: flex;
+    align-items: center;
+}
+
+.star-icon {
+    color: #FFB74D;
+    margin-right: 2px;
+}
+
+.rating-text {
+    margin-left: 4px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .table-custom {
+        min-width: 800px;
+    }
+}

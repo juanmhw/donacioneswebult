@@ -9,5 +9,7 @@
         public DateTime? FechaAsignacion { get; set; }
         public int UsuarioId { get; set; }
         public string? Comprobante { get; set; }
+
+        public string? ImagenUrl { get; set; }
     }
 }

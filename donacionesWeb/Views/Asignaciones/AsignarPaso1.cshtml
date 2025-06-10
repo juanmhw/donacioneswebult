@@ -1,0 +1,331 @@
+﻿@model donacionesWeb.Models.Asignacione
+@{
+    ViewData["Title"] = "Nueva Asignación - Paso 1";
+}
+
+<style>
+    :root {
+        --primary-color: #e94e1b; /* Naranja principal */
+        --secondary-color: #ff8c42; /* Naranja secundario */
+        --accent-color: #d62828; /* Rojo acento */
+        --light-orange: #ffd6b6; /* Naranja claro */
+        --background-color: #fff9f3; /* Fondo cálido muy suave */
+        --text-color: #4a3933; /* Marrón oscuro para texto */
+        --border-color: #f0e0d6; /* Borde suave anaranjado */
+        --form-bg: #ffffff; /* Fondo de formularios */
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+        .page-header h2 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+        .step:not(:last-child) {
+            margin-right: 5rem;
+        }
+
+            .step:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                top: 2.5rem;
+                right: -3rem;
+                width: 3rem;
+                height: 2px;
+                background-color: var(--border-color);
+                z-index: -1;
+            }
+
+    .step-circle {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-title {
+        font-weight: 500;
+        color: var(--text-color);
+        text-align: center;
+    }
+
+    .step.inactive .step-circle {
+        background-color: var(--light-orange);
+        color: var(--text-color);
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        background-color: var(--form-bg);
+    }
+
+    .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-control {
+        border-color: var(--border-color);
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(233, 78, 27, 0.25);
+            border-color: var(--primary-color);
+        }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-custom-primary:hover {
+            background-color: #d24313;
+            border-color: #d24313;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-custom-secondary {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-custom-secondary:hover {
+            background-color: #f07b35;
+            border-color: #f07b35;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border-color: var(--secondary-color);
+        color: var(--secondary-color);
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-custom-outline:hover {
+            background-color: var(--light-orange);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+    .alert-custom-success {
+        background-color: rgba(255, 140, 66, 0.2);
+        border-left: 4px solid var(--secondary-color);
+        color: var(--text-color);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 6px;
+    }
+
+    .alert-custom-info {
+        background-color: rgba(255, 214, 182, 0.3);
+        border-left: 4px solid var(--light-orange);
+        color: var(--text-color);
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 6px;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(to right, var(--border-color), transparent);
+        margin: 2rem 0;
+    }
+
+    .quick-access-card {
+        border-left: 4px solid var(--secondary-color);
+        background-color: rgba(255, 140, 66, 0.1);
+        border-radius: 6px;
+        padding: 1.5rem;
+    }
+
+    .quick-access-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+        .action-btn i {
+            margin-right: 0.5rem;
+        }
+</style>
+
+<div class="page-header">
+    <div class="container-fluid">
+        <h2>Nueva Asignación</h2>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Indicador de pasos -->
+    <div class="step-indicator">
+        <div class="step">
+            <div class="step-circle">1</div>
+            <div class="step-title">Datos Básicos</div>
+        </div>
+        <div class="step inactive">
+            <div class="step-circle">2</div>
+            <div class="step-title">Detalles</div>
+        </div>
+        <div class="step inactive">
+            <div class="step-circle">3</div>
+            <div class="step-title">Asignar Donación</div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-custom-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-clipboard-plus me-2"></i>Datos de la Nueva Asignación
+                </div>
+                <div class="card-body">
+                    <form asp-action="CrearPaso1" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="CampaniaId">Campaña <span class="text-danger">*</span></label>
+                            <select asp-for="CampaniaId" class="form-control" asp-items="ViewBag.Campanias" required>
+                                <option value="">Seleccione una campaña</option>
+                            </select>
+                            <div class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Seleccione la campaña a la que pertenecerá esta asignación
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Descripcion">Descripción <span class="text-danger">*</span></label>
+                            <input asp-for="Descripcion" class="form-control" placeholder="Escriba una descripción breve pero descriptiva" required />
+                            <div class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Describa el propósito de esta asignación
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imagen">Imagen de la asignación <span class="text-danger">*</span></label>
+                            <input type="file" name="imagen" class="form-control" required />
+                            <div class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>La imagen representará visualmente esta asignación
+                            </div>
+                            <span asp-validation-for="ImagenUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-custom-secondary btn-lg">
+                                <i class="bi bi-arrow-right-circle me-2"></i>Guardar y Continuar
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            @if (Model != null && Model.AsignacionId > 0)
+            {
+                <div class="quick-access-card">
+                    <div class="quick-access-title">
+                        <i class="bi bi-lightning-fill me-2"></i>Accesos Rápidos
+                    </div>
+                    <p>Asignación #@Model.AsignacionId creada correctamente. Ahora puede:</p>
+                    <div>
+                        <a asp-action="AgregarDetalles" asp-controller="Asignaciones" asp-route-id="@Model.AsignacionId" class="btn btn-custom-primary action-btn">
+                            <i class="bi bi-pencil-square"></i> Agregar Detalles
+                        </a>
+                        <a asp-action="AsignarDonacion" asp-controller="Asignaciones" asp-route-id="@Model.AsignacionId" class="btn btn-custom-outline action-btn">
+                            <i class="bi bi-link-45deg"></i> Asignar Donación
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

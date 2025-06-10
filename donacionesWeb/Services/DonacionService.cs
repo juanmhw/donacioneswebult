@@ -12,6 +12,7 @@ namespace donacionesWeb.Services
         public DonacionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            _httpClient.BaseAddress = new Uri("http://localhost:5097/api/");
         }
 
         public async Task<List<Donacione>> GetAllAsync()
@@ -37,6 +38,33 @@ namespace donacionesWeb.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Donacione>();
         }
+
+        public async Task<Donacione> UpdateAsync(int id, Donacione donacion)
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            var json = JsonSerializer.Serialize(donacion, options);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync($"Donaciones/{id}", content);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            {
+                return donacion; // ← retorna el mismo objeto si no hay JSON
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(result))
+                return donacion;
+
+            return JsonSerializer.Deserialize<Donacione>(result, options)
+                ?? throw new Exception("No se pudo deserializar la donación");
+        }
+
 
         public async Task<bool> DeleteAsync(int id)
         {

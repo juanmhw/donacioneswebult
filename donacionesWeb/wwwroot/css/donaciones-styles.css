@@ -1,0 +1,392 @@
+﻿/* Paleta de colores extraída y acentuada */
+:root {
+    --primary-color: #FF5A31; /* Naranja principal acentuado */
+    --primary-light: #FF7D5A; /* Naranja claro */
+    --primary-dark: #E53E16; /* Naranja oscuro */
+    --secondary-color: #FF8C42; /* Naranja secundario */
+    --accent-color: #E71D36; /* Rojo acento */
+    --background-color: #FFF4E9; /* Fondo beige claro */
+    --text-color: #333333; /* Texto principal */
+    --light-text: #666666; /* Texto secundario */
+    --white: #FFFFFF; /* Blanco */
+    --card-bg: #FFFFFF; /* Fondo de tarjetas */
+    --border-color: #FFDECC; /* Borde suave */
+    --hover-color: #FFC2A6; /* Color hover */
+    --chart-color1: #FF5A31; /* Gráfico color 1 */
+    --chart-color2: #E71D36; /* Gráfico color 2 */
+    --chart-color3: #FF8C42; /* Gráfico color 3 */
+}
+
+/* Generales */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--white) !important;
+    box-shadow: 0 2px 10px rgba(255, 90, 49, 0.1);
+}
+
+.navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.nav-link {
+    color: var(--text-color) !important;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+    .nav-link:hover {
+        color: var(--primary-color) !important;
+    }
+
+.dropdown-menu {
+    border-color: var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-color);
+    color: var(--primary-dark);
+}
+
+/* Cabecera principal */
+.donaciones-header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(255, 90, 49, 0.2);
+}
+
+    .donaciones-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .donaciones-header p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+/* Tarjetas de estadísticas */
+.stat-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 1.5rem;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card .stat-label {
+        color: var(--light-text);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+/* Sección de filtros */
+.filtros-section {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+    .filtros-section h4 {
+        color: var(--primary-dark);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .filtros-section label {
+        color: var(--text-color);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .filtros-section .form-control {
+        border-color: var(--border-color);
+        border-radius: 6px;
+    }
+
+        .filtros-section .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 90, 49, 0.25);
+        }
+
+/* Botones */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    transition: all 0.3s;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: var(--white);
+    }
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Tablas */
+.table-container {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+
+.table-header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 1rem;
+    font-weight: 600;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+    .table thead th {
+        background-color: rgba(255, 90, 49, 0.1);
+        color: var(--primary-dark);
+        font-weight: 600;
+        border-bottom: 2px solid var(--border-color);
+        padding: 0.75rem 1rem;
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(255, 90, 49, 0.05);
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        padding: 0.75rem 1rem;
+        border-color: var(--border-color);
+    }
+
+/* Etiquetas */
+.badge-monetaria {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.badge-especie {
+    background-color: var(--accent-color);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+/* Gráficos */
+.chart-container {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+
+.chart-header {
+    color: var(--primary-dark);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+    .chart-header i {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+/* Iconos */
+.icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 90, 49, 0.1);
+    color: var(--primary-color);
+    margin-right: 0.75rem;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--white);
+    color: var(--light-text);
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+}
+
+/* Estilos de redes sociales */
+.social-links {
+    display: flex;
+    align-items: center;
+}
+
+    .social-links a {
+        color: var(--primary-color);
+        margin-right: 15px;
+        font-size: 1.2rem;
+        transition: color 0.3s;
+    }
+
+        .social-links a:hover {
+            color: var(--primary-dark);
+        }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .donaciones-header {
+        padding: 1rem;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+    }
+
+    .filtros-section {
+        padding: 1rem;
+    }
+
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Clases específicas para elementos del dashboard */
+.dashboard-wrapper {
+    padding: 20px 0;
+}
+
+.exportar-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+    .exportar-buttons .btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+/* Estilos específicos para el dashboard */
+#dashboard-donaciones {
+    margin-top: 20px;
+}
+
+/* Estilos para el gráfico de donuts */
+.donut-chart {
+    width: 100%;
+    height: 300px;
+}
+
+/* Leyenda de gráficos */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.legend-color-1 {
+    background-color: var(--chart-color1);
+}
+
+.legend-color-2 {
+    background-color: var(--chart-color2);
+}
+
+.legend-color-3 {
+    background-color: var(--chart-color3);
+}

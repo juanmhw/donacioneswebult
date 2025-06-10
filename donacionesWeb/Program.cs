@@ -1,7 +1,9 @@
 using donacionesWeb.Controllers;
 using donacionesWeb.Services;
+using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
+using QuestPDF.Infrastructure;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -35,6 +37,7 @@ builder.Services.AddHttpClient<CampaniaService>(client =>
         new MediaTypeWithQualityHeaderValue("application/json"));
 });
 
+
 // Configuración general para otros servicios
 builder.Services.AddHttpClient("DonacionesApi", client =>
 {
@@ -54,9 +57,18 @@ builder.Services.AddScoped<DonacionAsignacionService>();
 builder.Services.AddScoped<DetallesAsignacionService>();
 builder.Services.AddScoped<AsignacionService>();
 builder.Services.AddScoped<RendicionCuentasController>();
+builder.Services.AddScoped<FeedbackService>();
+builder.Services.AddHttpClient<UsuarioRolService>();
+builder.Services.AddHttpClient<RolService>();
+builder.Services.AddHttpClient<MensajeService>();
+builder.Services.AddHttpClient<RespuestaMensajeService>();
+builder.Services.AddSingleton<FirebaseStorageService>();
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 // Nota: MensajeService estaba duplicado, lo he quitado
 
+// ... otros servicios
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -65,6 +77,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+app.UseCors("PermitirFrontend");
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

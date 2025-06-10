@@ -40,5 +40,7 @@ namespace donacionesWeb.Models
 
         [JsonPropertyName("fechaCreacion")]
         public DateTime? FechaCreacion { get; set; }
+
+        public string? ImagenUrl { get; set; } 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace donacionesWeb.Models.ViewModels
 {
@@ -15,7 +16,7 @@ namespace donacionesWeb.Models.ViewModels
         public string Email { get; set; }
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} caracteres.", MinimumLength = 6)]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
         [DataType(DataType.Password)]
         public string Contrasena { get; set; }
 
@@ -25,5 +26,7 @@ namespace donacionesWeb.Models.ViewModels
 
         [Phone(ErrorMessage = "Ingrese un número de teléfono válido")]
         public string Telefono { get; set; }
+
+        public IFormFile? Imagen { get; set; } // NUEVO CAMPO
     }
 }
