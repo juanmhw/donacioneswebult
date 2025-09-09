@@ -7,7 +7,7 @@ namespace donacionesWeb.Services
     public class EstadoService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:5097/api/Estadoes";
+        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/";
 
         public EstadoService(HttpClient httpClient)
         {

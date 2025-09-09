@@ -13,6 +13,9 @@ public class DetallesAsignacionViewModel
     public List<DonacionesAsignacione> DonacionesAsignadas { get; set; } = new();
 
     public decimal TotalAsignado => Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
-    public IFormFile? Imagen { get; set; }
+    public IFormFile Imagen { get; set; }
+
+
+
 }
 

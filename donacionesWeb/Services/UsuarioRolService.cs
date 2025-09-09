@@ -7,7 +7,7 @@ namespace donacionesWeb.Services
     public class UsuarioRolService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:5097/api/UsuariosRoles";
+        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/UsuariosRoles";
 
         public UsuarioRolService(HttpClient httpClient)
         {

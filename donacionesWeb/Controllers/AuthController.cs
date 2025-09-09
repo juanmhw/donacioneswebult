@@ -1,7 +1,6 @@
 ﻿using donacionesWeb.Models;
 using donacionesWeb.Models.ViewModels;
 using donacionesWeb.Services;
-using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace donacionesWeb.Controllers
         private readonly UsuarioService _usuarioService;
         private readonly UsuarioRolService _usuarioRolService;
         private readonly RolService _rolService;
-        private readonly FirebaseStorageService _firebaseStorageService;
+        private readonly SupabaseStorageService _supabaseStorageService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
@@ -22,22 +21,20 @@ namespace donacionesWeb.Controllers
             UsuarioRolService usuarioRolService,
             RolService rolService,
             ILogger<AuthController> logger,
-            FirebaseStorageService firebaseStorageService)
+            SupabaseStorageService supabaseStorageService)
         {
             _usuarioService = usuarioService;
             _usuarioRolService = usuarioRolService;
             _rolService = rolService;
             _logger = logger;
-            _firebaseStorageService = firebaseStorageService;
+            _supabaseStorageService = supabaseStorageService;
         }
 
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
         {
             if (User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Dashboard", "Home");
-            }
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -54,55 +51,34 @@ namespace donacionesWeb.Controllers
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
             {
-                try
+                _logger.LogInformation("Intentando autenticar al usuario: {Email}", model.Email);
+
+                var usuario = await _usuarioService.GetUsuarioByEmailAsync(model.Email);
+                if (usuario == null || usuario.Contrasena != model.Contrasena)
                 {
-                    _logger.LogInformation("Intentando autenticar al usuario: {Email}", model.Email);
-
-                    var usuario = await _usuarioService.GetUsuarioByEmailAsync(model.Email);
-
-                    if (usuario == null)
-                    {
-                        _logger.LogWarning("No se encontró el usuario con email: {Email}", model.Email);
-                        ModelState.AddModelError(string.Empty, "Credenciales inválidas");
-                        return View(model);
-                    }
-
-                    _logger.LogInformation("Usuario encontrado: {UsuarioId}, contraseña en BD: {Contrasena}", usuario.UsuarioId, usuario.Contrasena);
-
-                    if (usuario.Contrasena == model.Contrasena)
-                    {
-                        _logger.LogInformation("Contraseña verificada correctamente");
-
-                        try
-                        {
-                            var usuarioRoles = await _usuarioRolService.GetUsuariosRolesByUsuarioIdAsync(usuario.UsuarioId);
-                            _logger.LogInformation("Roles obtenidos: {RolesCount}", usuarioRoles.Count);
-
-                            await SignInUser(usuario, usuarioRoles);
-                            _logger.LogInformation("Usuario {Email} ha iniciado sesión", usuario.Email);
-                            return RedirectToLocal(returnUrl);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError("Error al obtener roles o realizar el inicio de sesión: {Message}", ex.Message);
-                            ModelState.AddModelError(string.Empty, "Error al obtener los roles del usuario");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Contraseña incorrecta para el usuario: {Email}", model.Email);
-                        ModelState.AddModelError(string.Empty, "Credenciales inválidas");
-                    }
+                    _logger.LogWarning("Credenciales inválidas para: {Email}", model.Email);
+                    ModelState.AddModelError(string.Empty, "Credenciales inválidas");
+                    return View(model);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error al intentar iniciar sesión: {Message}", ex.Message);
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error al iniciar sesión");
-                }
+
+                var usuarioRoles = await _usuarioRolService.GetUsuariosRolesByUsuarioIdAsync(usuario.UsuarioId);
+                await SignInUser(usuario, usuarioRoles);
+
+                _logger.LogInformation("Usuario {Email} ha iniciado sesión", usuario.Email);
+                return RedirectToLocal(returnUrl);
             }
-            return View(model);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al iniciar sesión");
+                ModelState.AddModelError(string.Empty, "Ocurrió un error al iniciar sesión");
+                return View(model);
+            }
         }
 
         [HttpGet]
@@ -140,23 +116,23 @@ namespace donacionesWeb.Controllers
 
                 if (model.Imagen != null && model.Imagen.Length > 0)
                 {
-                    usuario.ImagenUrl = await _firebaseStorageService.SubirImagenAsync(model.Imagen, "usuarios");
+                    usuario.ImagenUrl = await _supabaseStorageService.SubirImagenAsync(model.Imagen, "usuarios");
                 }
                 else
                 {
-                    usuario.ImagenUrl = "https://firebasestorage.googleapis.com/v0/b/transparenciadonaciones.appspot.com/o/user_default.jpg?alt=media";
+                    usuario.ImagenUrl = "https://tjuafoiemlxssyyfhden.supabase.co/storage/v1/object/public/transparencia-bucket/user_default.jpg";
                 }
 
                 var nuevoUsuario = await _usuarioService.CreateUsuarioAsync(usuario);
 
                 var roles = await _rolService.GetRolesAsync();
                 var rolAdmin = roles.FirstOrDefault(r => r.Nombre == "Admin")
-                               ?? await _rolService.CreateRolAsync(new Rol
-                               {
-                                   Nombre = "Admin",
-                                   Descripcion = "Administrador del sistema",
-                                   Activo = true
-                               });
+                    ?? await _rolService.CreateRolAsync(new Rol
+                    {
+                        Nombre = "Admin",
+                        Descripcion = "Administrador del sistema",
+                        Activo = true
+                    });
 
                 await _usuarioRolService.CreateUsuarioRolAsync(new UsuarioRol
                 {

@@ -12,7 +12,7 @@ namespace donacionesWeb.Services
         public SaldosDonacionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:5097/api/"); // ✅ BaseAddress importante
+            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/"); // ✅ BaseAddress importante
         }
 
         public async Task<List<SaldosDonacione>> GetAllAsync()

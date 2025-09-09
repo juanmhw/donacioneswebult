@@ -8,7 +8,7 @@ namespace donacionesWeb.Services
     public class FeedbackService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiUrl = "http://localhost:5126/api/Comentarios";
+        private readonly string _apiUrl = "http://www.apimongo.somee.com/api/Comentarios";
 
         public FeedbackService(HttpClient httpClient)
         {

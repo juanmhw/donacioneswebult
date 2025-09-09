@@ -291,13 +291,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="imagen">Imagen de la asignación <span class="text-danger">*</span></label>
-                            <input type="file" name="imagen" class="form-control" required />
+                            <label for="imagen">Imagen de la asignación</label>
+                            <input type="file" name="imagen" class="form-control" />
                             <div class="form-text text-muted">
-                                <i class="bi bi-info-circle me-1"></i>La imagen representará visualmente esta asignación
+                                <i class="bi bi-info-circle me-1"></i> Puedes dejarlo vacío si no deseas subir imagen.
                             </div>
                             <span asp-validation-for="ImagenUrl" class="text-danger"></span>
                         </div>
+
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-custom-secondary btn-lg">

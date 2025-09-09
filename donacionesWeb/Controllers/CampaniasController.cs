@@ -1,7 +1,6 @@
 ﻿using donacionesWeb.Models;
 using donacionesWeb.Models.ViewModels;
 using donacionesWeb.Services;
-using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +13,12 @@ namespace donacionesWeb.Controllers
     public class CampaniasController : Controller
     {
         private readonly CampaniaService _campaniaService;
-        private readonly FirebaseStorageService _firebaseStorageService;
+        private readonly SupabaseStorageService _supabaseStorageService;
 
-        public CampaniasController(CampaniaService campaniaService, FirebaseStorageService firebaseStorageService)
+        public CampaniasController(CampaniaService campaniaService, SupabaseStorageService supabaseStorageService)
         {
             _campaniaService = campaniaService;
-            _firebaseStorageService = firebaseStorageService;
+            _supabaseStorageService = supabaseStorageService;
         }
 
         [HttpGet]
@@ -34,7 +33,6 @@ namespace donacionesWeb.Controllers
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -58,11 +56,11 @@ namespace donacionesWeb.Controllers
 
             if (model.Imagen != null && model.Imagen.Length > 0)
             {
-                campania.ImagenUrl = await _firebaseStorageService.SubirImagenAsync(model.Imagen, "campanias");
+                campania.ImagenUrl = await _supabaseStorageService.SubirImagenAsync(model.Imagen, "campanias");
             }
             else
             {
-                campania.ImagenUrl = "https://firebasestorage.googleapis.com/v0/b/transparenciadonaciones.appspot.com/o/campaign-default.jpg?alt=media";
+                campania.ImagenUrl = "https://tjuafoiemlxssyyfhden.supabase.co/storage/v1/object/public/transparencia-bucket/campaign-default.jpg";
             }
 
             await _campaniaService.CreateAsync(campania);
@@ -82,7 +80,6 @@ namespace donacionesWeb.Controllers
                 Titulo = campania.Titulo,
                 Descripcion = campania.Descripcion,
                 MetaRecaudacion = campania.MetaRecaudacion
-                // Nota: Imagen no se rellena porque es IFormFile
             };
 
             ViewBag.CampaniaId = id;
@@ -104,15 +101,13 @@ namespace donacionesWeb.Controllers
             if (campania == null)
                 return NotFound();
 
-            campania.CampaniaId = id; // ✅ asignar el ID manualmente
-
             campania.Titulo = model.Titulo;
             campania.Descripcion = model.Descripcion;
             campania.MetaRecaudacion = model.MetaRecaudacion;
 
             if (model.Imagen != null && model.Imagen.Length > 0)
             {
-                campania.ImagenUrl = await _firebaseStorageService.SubirImagenAsync(model.Imagen, "campanias");
+                campania.ImagenUrl = await _supabaseStorageService.SubirImagenAsync(model.Imagen, "campanias");
             }
 
             await _campaniaService.UpdateAsync(id, campania);
@@ -120,8 +115,5 @@ namespace donacionesWeb.Controllers
             TempData["SuccessMessage"] = "Campaña actualizada correctamente.";
             return RedirectToAction("Index");
         }
-
-
-
     }
 }

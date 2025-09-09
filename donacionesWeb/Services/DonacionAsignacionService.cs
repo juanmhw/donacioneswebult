@@ -12,7 +12,7 @@ namespace donacionesWeb.Services
         public DonacionAsignacionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:5097/api/"); // ✅ BaseAddress obligatoria
+            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/"); // ✅ BaseAddress obligatoria
         }
 
         // Obtener todas las asignaciones de donaciones

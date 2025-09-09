@@ -11,7 +11,7 @@ namespace donacionesWeb.Services
         public AsignacionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:5097/api/");
+            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/");
         }
 
         public async Task<IEnumerable<Asignacione>> GetAllAsync()

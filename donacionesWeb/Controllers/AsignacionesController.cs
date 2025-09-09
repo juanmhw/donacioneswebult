@@ -2,7 +2,6 @@
 using donacionesWeb.Models;
 using donacionesWeb.Models.ViewModels;
 using donacionesWeb.Services;
-using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,8 +22,7 @@ namespace donacionesWeb.Controllers
         private readonly DonacionAsignacionService _donacionAsignacionService;
         private readonly SaldosDonacionService _saldosDonacionService;
         private readonly DonacionService _donacionService;
-        private readonly FirebaseStorageService _firebaseStorageService;
-
+        private readonly SupabaseStorageService _supabaseStorageService;
 
         public AsignacionesController(
             AsignacionService asignacionService,
@@ -33,7 +31,7 @@ namespace donacionesWeb.Controllers
             DonacionAsignacionService donacionAsignacionService,
             SaldosDonacionService saldosDonacionService,
             DonacionService donacionService,
-            FirebaseStorageService firebaseStorageService)
+            SupabaseStorageService supabaseStorageService)
         {
             _asignacionService = asignacionService;
             _campaniaService = campaniaService;
@@ -41,7 +39,7 @@ namespace donacionesWeb.Controllers
             _donacionAsignacionService = donacionAsignacionService;
             _saldosDonacionService = saldosDonacionService;
             _donacionService = donacionService;
-            _firebaseStorageService = firebaseStorageService;
+            _supabaseStorageService = supabaseStorageService;
         }
 
         [HttpGet]
@@ -61,20 +59,18 @@ namespace donacionesWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearPaso1(Asignacione model, IFormFile imagen)
         {
-            if (!ModelState.IsValid)
-                return View("AsignarPaso1", model);
-
-            if (imagen == null || imagen.Length == 0)
-            {
-                ModelState.AddModelError("Imagen", "Debes subir una imagen para la asignación.");
-                return View("AsignarPaso1", model);
-            }
-
             model.UsuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             model.FechaAsignacion = DateTime.Now;
             model.Monto = 0;
 
-            model.ImagenUrl = await _firebaseStorageService.SubirImagenAsync(imagen, "asignaciones");
+            if (imagen != null && imagen.Length > 0)
+            {
+                model.ImagenUrl = await _supabaseStorageService.SubirImagenAsync(imagen, "asignaciones");
+            }
+            else
+            {
+                model.ImagenUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png";
+            }
 
             await _asignacionService.CreateAsync(model);
 
@@ -82,7 +78,6 @@ namespace donacionesWeb.Controllers
 
             return RedirectToAction("AgregarDetalles", new { id = nueva?.AsignacionId });
         }
-
 
         [HttpGet]
         public async Task<IActionResult> AgregarDetalles(int id)
@@ -108,20 +103,14 @@ namespace donacionesWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarDetalles(DetallesAsignacionViewModel model, IFormFile imagen)
         {
-            if (!ModelState.IsValid || imagen == null || imagen.Length == 0)
+            if (imagen != null && imagen.Length > 0)
             {
-                ModelState.AddModelError("Imagen", "La imagen del ítem es obligatoria.");
-
-                model.Asignacion = await _asignacionService.GetByIdAsync(model.NuevoDetalle.AsignacionId);
-                model.Detalles = await _detallesAsignacionService.GetByAsignacionAsync(model.NuevoDetalle.AsignacionId);
-                model.DonacionesAsignadas = (await _donacionAsignacionService.GetAllAsync())
-                    .Where(d => d.AsignacionId == model.NuevoDetalle.AsignacionId).ToList();
-
-                return View("AgregarDetalles", model);
+                model.NuevoDetalle.ImagenUrl = await _supabaseStorageService.SubirImagenAsync(imagen, "detallesAsignaciones");
             }
-
-            // Subir imagen a Firebase
-            model.NuevoDetalle.ImagenUrl = await _firebaseStorageService.SubirImagenAsync(imagen, "detallesAsignaciones");
+            else
+            {
+                model.NuevoDetalle.ImagenUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png";
+            }
 
             await _detallesAsignacionService.CreateDetalleAsync(model.NuevoDetalle);
 
@@ -135,6 +124,7 @@ namespace donacionesWeb.Controllers
             TempData["SuccessMessage"] = "Detalle agregado y monto actualizado correctamente.";
             return RedirectToAction("AgregarDetalles", new { id = asignacion.AsignacionId });
         }
+
 
 
         [HttpGet]
@@ -392,6 +382,8 @@ namespace donacionesWeb.Controllers
 
             return File(pdfStream.ToArray(), "application/pdf", $"Reporte_Asignaciones_{DateTime.Now:yyyyMMdd}.pdf");
         }
+
+
 
 
 

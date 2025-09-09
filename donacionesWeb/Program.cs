@@ -63,6 +63,7 @@ builder.Services.AddHttpClient<RolService>();
 builder.Services.AddHttpClient<MensajeService>();
 builder.Services.AddHttpClient<RespuestaMensajeService>();
 builder.Services.AddSingleton<FirebaseStorageService>();
+builder.Services.AddHttpClient<SupabaseStorageService>();
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 

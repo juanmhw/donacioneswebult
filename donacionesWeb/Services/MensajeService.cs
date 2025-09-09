@@ -7,7 +7,7 @@ namespace donacionesWeb.Services
     public class MensajeService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:5097/api/Mensajes";
+        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/Mensajes";
 
         public MensajeService(HttpClient httpClient)
         {

@@ -253,6 +253,8 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="NuevoDetalle.AsignacionId" />
 
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                         <div class="form-group">
                             <label for="NuevoDetalle_Concepto">Concepto</label>
                             <input asp-for="NuevoDetalle.Concepto" class="form-control" required />
@@ -272,11 +274,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="imagen">Imagen del ítem <span class="text-danger">*</span></label>
-                            <input type="file" name="imagen" class="form-control" required />
-                            <span asp-validation-for="Imagen" class="text-danger"></span>
+                            <label for="imagen">Imagen del ítem</label>
+                            <input type="file" name="imagen" class="form-control" />
                             <div class="form-text text-muted">
-                                <i class="bi bi-info-circle me-1"></i>Sube una imagen representativa del ítem.
+                                <i class="bi bi-info-circle me-1"></i>Puedes dejar este campo vacío si no deseas subir una imagen.
                             </div>
                         </div>
 
@@ -284,6 +285,7 @@
                             <i class="bi bi-plus-circle me-2"></i>Agregar Ítem
                         </button>
                     </form>
+
                 </div>
             </div>
 

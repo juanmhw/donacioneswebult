@@ -10,6 +10,6 @@
         public int UsuarioId { get; set; }
         public string? Comprobante { get; set; }
 
-        public string? ImagenUrl { get; set; }
+        public string ImagenUrl { get; set; }
     }
 }

@@ -7,12 +7,12 @@ namespace donacionesWeb.Services
     public class DonacionService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:5097/api/Donaciones";
+        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/Donaciones";
 
         public DonacionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:5097/api/");
+            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/");
         }
 
         public async Task<List<Donacione>> GetAllAsync()
