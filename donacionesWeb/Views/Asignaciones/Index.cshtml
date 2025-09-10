@@ -1,0 +1,262 @@
+﻿@model IEnumerable<donacionesWeb.Models.ViewModels.AsignacionIndexViewModel>
+@{
+    ViewData["Title"] = "Asignaciones";
+}
+
+<style>
+    :root {
+        --primary-color: #e94e1b; /* Naranja principal */
+        --secondary-color: #ff8c42; /* Naranja secundario */
+        --accent-color: #d62828; /* Rojo acento */
+        --light-orange: #ffd6b6; /* Naranja claro */
+        --background-color: #fff9f3; /* Fondo cálido muy suave */
+        --text-color: #4a3933; /* Marrón oscuro para texto */
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .custom-btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+        .custom-btn-primary:hover {
+            background-color: #d24313;
+            border-color: #d24313;
+        }
+
+    .custom-btn-secondary {
+        background-color: white;
+        border-color: var(--secondary-color);
+        color: var(--secondary-color);
+    }
+
+        .custom-btn-secondary:hover {
+            background-color: var(--light-orange);
+            color: var(--primary-color);
+        }
+
+    .custom-btn-success {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+    }
+
+        .custom-btn-success:hover {
+            background-color: #f07b35;
+            border-color: #f07b35;
+        }
+
+    .table-custom {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    }
+
+        .table-custom thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .table-custom th {
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+    .badge-custom-complete {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .badge-custom-pending {
+        background-color: var(--light-orange);
+        color: var(--text-color);
+    }
+
+    .badge-custom-empty {
+        background-color: var(--accent-color);
+        color: white;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    .table-row-complete {
+        background-color: rgba(233, 78, 27, 0.15);
+    }
+
+    .table-row-empty {
+        background-color: rgba(214, 40, 40, 0.15);
+    }
+
+    .table-row-pending {
+        background-color: rgba(255, 214, 182, 0.5);
+    }
+
+    .alert-custom-success {
+        background-color: rgba(255, 140, 66, 0.2);
+        border-left: 4px solid var(--secondary-color);
+        color: var(--text-color);
+    }
+
+    .alert-custom-danger {
+        background-color: rgba(214, 40, 40, 0.2);
+        border-left: 4px solid var(--accent-color);
+        color: var(--text-color);
+    }
+
+    .action-buttons .btn {
+        margin-right: 5px;
+    }
+</style>
+
+<div class="page-header">
+    <h2 class="mb-0">Gestión de Asignaciones</h2>
+</div>
+
+<div class="container-fluid px-0">
+    <!-- Mensajes de éxito y error -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-custom-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-custom-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Acciones Rápidas</h5>
+                    <a asp-action="CrearPaso1" class="btn custom-btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-plus-circle me-2"></i>Nueva Asignación
+                    </a>
+                    <a asp-action="DescargarReporteExcel" class="btn custom-btn-secondary btn-lg w-100">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Exportar a Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Leyenda de Estados</h5>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--primary-color);"></div>
+                        <div>Asignación Completa (monto asignado total alcanzado)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--accent-color);"></div>
+                        <div>Sin Ítems Registrados</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--light-orange);"></div>
+                        <div>En Progreso (aún no se ha completado la asignación)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de asignaciones -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Descripción</th>
+                            <th>Campaña</th>
+                            <th>Fecha</th>
+                            <th>Monto Total</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var a = item.Asignacion;
+                            var rowClass = a.Monto == 0 ? "table-row-empty"
+                            : item.TotalAsignado >= a.Monto ? "table-row-complete"
+                            : "table-row-pending";
+                            var statusBadge = a.Monto == 0 ? "badge-custom-empty"
+                            : item.TotalAsignado >= a.Monto ? "badge-custom-complete"
+                            : "badge-custom-pending";
+                            var statusText = a.Monto == 0 ? "Sin ítems"
+                            : item.TotalAsignado >= a.Monto ? "Completa"
+                            : "En progreso";
+
+                            <tr class="@rowClass">
+                                <td>@a.AsignacionId</td>
+                                <td>
+                                    <img src="@item.Asignacion.ImagenUrl"
+                                         alt="Imagen de asignación"
+                                         class="img-thumbnail"
+                                         style="max-width: 150px; max-height: 100px; object-fit: cover;" />
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">@a.Descripcion</span>
+                                        <span class="badge @statusBadge">@statusText</span>
+                                    </div>
+                                </td>
+                                <td>@item.CampaniaTitulo</td>
+                                <td>@a.FechaAsignacion?.ToShortDateString()</td>
+                                <td><strong>Bs @a.Monto</strong></td>
+                                <td class="text-center action-buttons">
+                                    <a asp-action="AgregarDetalles" asp-route-id="@a.AsignacionId" class="btn btn-sm custom-btn-primary">
+                                        <i class="bi bi-card-list me-1"></i> Detalles
+                                    </a>
+                                    <a asp-action="AsignarDonacion" asp-route-id="@a.AsignacionId" class="btn btn-sm custom-btn-success">
+                                        <i class="bi bi-plus-square me-1"></i> Asignar
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

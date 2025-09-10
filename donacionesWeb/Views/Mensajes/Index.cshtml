@@ -1,0 +1,254 @@
+﻿@model donacionesWeb.Models.ViewModels.BandejaEntradaViewModel
+@{
+    ViewData["Title"] = "Mensajes";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="bi bi-envelope"></i> Bandeja de Mensajes</h2>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <ul class="nav nav-tabs mb-4" id="mensajesTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="recibidos-tab" data-bs-toggle="tab" data-bs-target="#recibidos" type="button" role="tab" aria-controls="recibidos" aria-selected="true">
+                <i class="bi bi-inbox"></i> Recibidos
+                @if (Model.MensajesRecibidos.Any(m => m.Leido != true))
+                {
+                    <span class="badge bg-danger ms-1">@Model.MensajesRecibidos.Count(m => m.Leido != true)</span>
+                }
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="enviados-tab" data-bs-toggle="tab" data-bs-target="#enviados" type="button" role="tab" aria-controls="enviados" aria-selected="false">
+                <i class="bi bi-send"></i> Enviados
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="mensajesTabContent">
+        <div class="tab-pane fade show active" id="recibidos" role="tabpanel" aria-labelledby="recibidos-tab">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-inbox"></i> Mensajes Recibidos</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.MensajesRecibidos.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="10%">Estado</th>
+                                        <th width="25%">Remitente</th>
+                                        <th width="35%">Asunto</th>
+                                        <th width="20%">Fecha</th>
+                                        <th width="10%">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var mensaje in Model.MensajesRecibidos.OrderByDescending(m => m.FechaEnvio))
+                                    {
+                                        <tr class="@(mensaje.Leido == true ? "" : "table-primary")">
+                                            <td>
+                                                @if (mensaje.Leido != true)
+                                                {
+                                                    <span class="badge bg-primary">
+                                                        <i class="bi bi-envelope"></i> Nuevo
+                                                    </span>
+                                                }
+                                                else if (mensaje.Respondido == true)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-reply"></i> Respondido
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">
+                                                        <i class="bi bi-envelope-open"></i> Leído
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <span>@mensaje.NombreUsuarioOrigen</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="@(mensaje.Leido != true ? "fw-bold" : "")">
+                                                    @(mensaje.Asunto.Length > 50 ? mensaje.Asunto.Substring(0, 50) + "..." : mensaje.Asunto)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @mensaje.FechaEnvio?.ToString("dd/MM/yyyy HH:mm")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <a asp-action="Detalle" asp-route-id="@mensaje.MensajeId"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Ver mensaje">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <h4 class="mt-3 text-muted">No hay mensajes recibidos</h4>
+                            <p class="text-muted">Cuando recibas mensajes, aparecerán aquí.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="enviados" role="tabpanel" aria-labelledby="enviados-tab">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-send"></i> Mensajes Enviados</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.MensajesEnviados.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="10%">Estado</th>
+                                        <th width="25%">Destinatario</th>
+                                        <th width="35%">Asunto</th>
+                                        <th width="20%">Fecha</th>
+                                        <th width="10%">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var mensaje in Model.MensajesEnviados.OrderByDescending(m => m.FechaEnvio))
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (mensaje.Leido != true)
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-clock"></i> Sin leer
+                                                    </span>
+                                                }
+                                                else if (mensaje.Respondido == true)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check2-all"></i> Respondido
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">
+                                                        <i class="bi bi-check2"></i> Leído
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-secondary text-white rounded-circle me-2 d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <span>@mensaje.NombreUsuarioDestino</span>
+                                                </div>
+                                            </td>
+                                            <td>@(mensaje.Asunto.Length > 50 ? mensaje.Asunto.Substring(0, 50) + "..." : mensaje.Asunto)</td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @mensaje.FechaEnvio?.ToString("dd/MM/yyyy HH:mm")
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <a asp-action="Detalle" asp-route-id="@mensaje.MensajeId"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Ver mensaje">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center">
+                            <i class="bi bi-send display-1 text-muted"></i>
+                            <h4 class="mt-3 text-muted">No hay mensajes enviados</h4>
+                            <p class="text-muted">Los mensajes que envíes aparecerán aquí.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+
+    .table-primary {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    .nav-tabs .nav-link {
+        border: 1px solid transparent;
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+
+        .nav-tabs .nav-link.active {
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Activar los tabs de Bootstrap
+            $('#mensajesTab button').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+            // Auto-refresh cada 30 segundos para mostrar nuevos mensajes
+            setTimeout(function() {
+                location.reload();
+            }, 30000);
+        });
+    </script>
+}

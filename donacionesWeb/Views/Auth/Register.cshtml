@@ -1,0 +1,108 @@
+﻿@model donacionesWeb.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Registro";
+    Layout = "_AuthLayout"; // Usar el layout específico de autenticación
+}
+
+<div class="auth-container">
+    <div class="auth-box register-box">
+        <div class="auth-header">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="auth-body">
+            <form asp-action="Register" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group text-center">
+                    <label asp-for="Imagen" class="form-label">Foto de perfil (opcional)</label>
+                    <div class="input-group mb-3 justify-content-center">
+                        <input asp-for="Imagen" type="file" class="form-control w-auto" />
+                    </div>
+                    <span asp-validation-for="Imagen" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Nombre" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input asp-for="Nombre" class="form-control" placeholder="Ingresa tu nombre" />
+                            </div>
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Apellido" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input asp-for="Apellido" class="form-control" placeholder="Ingresa tu apellido" />
+                            </div>
+                            <span asp-validation-for="Apellido" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input asp-for="Email" class="form-control" placeholder="Ingresa tu correo electrónico" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Telefono" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input asp-for="Telefono" class="form-control" placeholder="Ingresa tu número de teléfono" />
+                    </div>
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Contrasena" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input asp-for="Contrasena" type="password" class="form-control" placeholder="Crea tu contraseña" />
+                            </div>
+                            <span asp-validation-for="Contrasena" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ConfirmarContrasena" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input asp-for="ConfirmarContrasena" type="password" class="form-control" placeholder="Confirma tu contraseña" />
+                            </div>
+                            <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+                </div>
+            </form>
+            <div class="auth-footer">
+                <p>¿Ya tienes una cuenta? <a asp-action="Login" class="login-link">Inicia sesión aquí</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('.auth-box').addClass('animate');
+        });
+    </script>
+}

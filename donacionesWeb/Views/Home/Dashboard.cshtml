@@ -1,0 +1,719 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Donaciones</title>
+
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jsPDF & AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --color-primary: #FF6B35; /* Naranja intenso */
+            --color-secondary: #C0392B; /* Rojo ladrillo */
+            --color-accent: #FF9E2C; /* Naranja claro */
+            --color-dark: #7D3C98; /* Complementario para contraste */
+            --color-light: #FFF3E0; /* Fondo claro cálido */
+            --color-text: #4A235A; /* Texto oscuro con tono púrpura */
+        }
+
+        body {
+            background-color: var(--color-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .navbar-brand, h1, h2, h3, h4 {
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+            .btn-primary:hover {
+                background-color: #E35F2F;
+                border-color: #E35F2F;
+            }
+
+        .btn-success {
+            background-color: var(--color-accent);
+            border-color: var(--color-accent);
+            color: #fff;
+        }
+
+            .btn-success:hover {
+                background-color: #F09325;
+                border-color: #F09325;
+            }
+
+        .btn-danger {
+            background-color: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+
+            .btn-danger:hover {
+                background-color: #AD3428;
+                border-color: #AD3428;
+            }
+
+        .btn-outline-secondary {
+            color: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: var(--color-secondary);
+                color: white;
+            }
+
+        .table-primary, .table-primary > th, .table-primary > td {
+            background-color: var(--color-accent);
+            color: white;
+        }
+
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card-header {
+            background-color: var(--color-primary);
+            color: white;
+            font-weight: 600;
+            border-bottom: none;
+        }
+
+        .social-icons a {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: var(--color-primary);
+            transition: color 0.3s;
+        }
+
+            .social-icons a:hover {
+                color: var(--color-secondary);
+            }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .filter-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        thead {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .donation-id {
+            color: var(--color-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+            .donation-id:hover {
+                color: var(--color-secondary);
+            }
+
+        .logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .badge-monetaria {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .badge-especie {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+
+        .btn-filter {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+            .btn-filter:hover {
+                background-color: var(--color-secondary);
+                transform: translateY(-2px);
+            }
+
+        .footer {
+            margin-top: 30px;
+            padding: 20px 0;
+            background-color: var(--color-secondary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header con logo y redes sociales -->
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-fire-extinguisher fa-2x me-2" style="color: var(--color-primary);"></i>
+                    <h2 class="mb-0">Donaciones Beni</h2>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-end social-icons">
+                    <a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://bomberosamericanos.org/es/home" target="_blank" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-globe me-1"></i> Nuestras redes sociales
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="text-white mb-0"><i class="fas fa-hand-holding-heart me-2"></i>Dashboard de Donaciones</h1>
+                    <p class="text-white-50 mb-0">Monitoreo y análisis de todas las contribuciones recibidas</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-light btn-sm me-2" onclick="generarReporteCSV()">
+                        <i class="fas fa-file-csv me-1"></i> Exportar CSV
+                    </button>
+                    <button class="btn btn-light btn-sm" onclick="generarReportePDF()">
+                        <i class="fas fa-file-pdf me-1"></i> Exportar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen estadístico -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-value" id="totalDonaciones">0</div>
+                    <div class="stat-label">Total Donaciones</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-value" id="montoTotal">0</div>
+                    <div class="stat-label">Monto Total (Bs)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-value" id="donacionPromedio">0</div>
+                    <div class="stat-label">Donación Promedio (Bs)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-value" id="totalCampanias">0</div>
+                    <div class="stat-label">Campañas Activas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card filter-card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-filter me-2"></i>Filtros</h5>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="periodo" class="form-label">Período Predefinido</label>
+                        <select id="periodo" class="form-select" onchange="filtrarPorPeriodo()">
+                            <option value="">Todos</option>
+                            <option value="trimestre">Último Trimestre</option>
+                            <option value="anual">Último Año</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="fechaInicio" class="form-label">Desde</label>
+                        <input type="date" id="fechaInicio" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="fechaFin" class="form-label">Hasta</label>
+                        <input type="date" id="fechaFin" class="form-control">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="tipoDonacion" class="form-label">Tipo de Donación</label>
+                        <select id="tipoDonacion" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="Monetaria">Monetaria</option>
+                            <option value="Especie">Especie</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="montoMinimo" class="form-label">Monto mínimo (Bs)</label>
+                        <input type="number" id="montoMinimo" class="form-control" placeholder="0">
+                    </div>
+                    <div class="col-md-9 d-flex align-items-end justify-content-end mb-3">
+                        <button onclick="filtrarDonaciones()" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i> Filtrar
+                        </button>
+                        <button onclick="resetearFiltros()" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-1"></i> Reiniciar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Tabla de donaciones -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="fas fa-list me-2"></i> Lista de Donaciones
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Campaña</th>
+                                        <th>Monto (Bs)</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaDonaciones"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-2"></i> Distribución por Campaña
+                            </div>
+                            <div class="card-body">
+                                <canvas id="graficoDonaciones" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-chart-bar me-2"></i> Donaciones por Mes
+                            </div>
+                            <div class="card-body">
+                                <canvas id="graficoPeriodos" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para detalles de donación -->
+        <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: var(--color-primary); color: white;">
+                        <h5 class="modal-title" id="detalleModalLabel">Detalle de Donación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="detalleModalBody">
+                        <!-- El contenido se llenará dinámicamente -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const API_URL = "http://apidonacionesbeni.somee.com/api/Donaciones";
+        let todasLasDonaciones = [];
+        let chartCampanas = null;
+        let chartPeriodos = null;
+        let detalleModal = null;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Inicializar modal
+            detalleModal = new bootstrap.Modal(document.getElementById('detalleModal'));
+
+            // Cargar datos
+            cargarDonaciones();
+        });
+
+        async function cargarDonaciones() {
+            try {
+                const res = await fetch(API_URL);
+                const donaciones = await res.json();
+                todasLasDonaciones = donaciones;
+                aplicarFiltros();
+                actualizarEstadisticas(donaciones);
+            } catch (error) {
+                console.error("Error al cargar donaciones:", error);
+                // Mostrar mensaje de error amigable
+                alert("No se pudieron cargar las donaciones. Por favor, verifica la conexión a la API.");
+            }
+        }
+
+        function actualizarEstadisticas(donaciones) {
+            // Total de donaciones
+            document.getElementById("totalDonaciones").textContent = donaciones.length;
+
+            // Monto total
+            const montoTotal = donaciones.reduce((total, d) => total + d.monto, 0);
+            document.getElementById("montoTotal").textContent = montoTotal.toFixed(2);
+
+            // Donación promedio
+            const promedio = donaciones.length > 0 ? montoTotal / donaciones.length : 0;
+            document.getElementById("donacionPromedio").textContent = promedio.toFixed(2);
+
+            // Total de campañas (únicas)
+            const campanias = new Set(donaciones.map(d => d.campaniaId));
+            document.getElementById("totalCampanias").textContent = campanias.size;
+        }
+
+        function aplicarFiltros() {
+            const inicio = document.getElementById("fechaInicio").value;
+            const fin = document.getElementById("fechaFin").value;
+            const tipo = document.getElementById("tipoDonacion").value;
+            const monto = parseFloat(document.getElementById("montoMinimo").value) || 0;
+            const periodo = document.getElementById("periodo").value;
+
+            const ahora = new Date();
+            let desdePeriodo = null;
+
+            if (periodo === "trimestre") {
+                desdePeriodo = new Date();
+                desdePeriodo.setMonth(ahora.getMonth() - 3);
+            } else if (periodo === "anual") {
+                desdePeriodo = new Date();
+                desdePeriodo.setFullYear(ahora.getFullYear() - 1);
+            }
+
+            const filtradas = todasLasDonaciones.filter(d => {
+                const fecha = new Date(d.fechaDonacion);
+                const desde = inicio ? new Date(inicio) : desdePeriodo;
+                const hasta = fin ? new Date(fin) : null;
+
+                return (!desde || fecha >= desde) &&
+                    (!hasta || fecha <= hasta) &&
+                    (!tipo || d.tipoDonacion === tipo) &&
+                    d.monto >= monto;
+            });
+
+            renderizarTabla(filtradas);
+            renderizarGraficos(filtradas);
+            actualizarEstadisticas(filtradas);
+        }
+
+        function filtrarDonaciones() {
+            document.getElementById("periodo").value = "";
+            aplicarFiltros();
+        }
+
+        function filtrarPorPeriodo() {
+            document.getElementById("fechaInicio").value = "";
+            document.getElementById("fechaFin").value = "";
+            aplicarFiltros();
+        }
+
+        function resetearFiltros() {
+            document.getElementById("fechaInicio").value = "";
+            document.getElementById("fechaFin").value = "";
+            document.getElementById("tipoDonacion").value = "";
+            document.getElementById("montoMinimo").value = "";
+            document.getElementById("periodo").value = "";
+            aplicarFiltros();
+        }
+
+        function renderizarTabla(donaciones) {
+            const tabla = document.getElementById("tablaDonaciones");
+            tabla.innerHTML = "";
+
+            if (donaciones.length === 0) {
+                const fila = document.createElement("tr");
+                fila.innerHTML = `<td colspan="4" class="text-center">No se encontraron donaciones con los filtros actuales</td>`;
+                tabla.appendChild(fila);
+                return;
+            }
+
+            donaciones.forEach(d => {
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                            <td><a href="#" class="donation-id" onclick="verDetalle(${d.donacionId})">${d.donacionId}</a></td>
+                            <td>${d.campania?.titulo ?? 'Campaña ' + d.campaniaId}</td>
+                            <td>${d.monto.toFixed(2)}</td>
+                            <td><span class="badge rounded-pill ${d.tipoDonacion === 'Monetaria' ? 'badge-monetaria' : 'badge-especie'}">${d.tipoDonacion}</span></td>`;
+                tabla.appendChild(fila);
+            });
+        }
+
+        function renderizarGraficos(donaciones) {
+            const resumenCampanas = {};
+            const resumenMensual = {};
+
+            donaciones.forEach(d => {
+                const nombre = d.campania?.titulo ?? `Campaña ${d.campaniaId}`;
+                resumenCampanas[nombre] = (resumenCampanas[nombre] || 0) + d.monto;
+
+                const mes = new Date(d.fechaDonacion).toLocaleDateString('es-BO', { year: 'numeric', month: 'short' });
+                resumenMensual[mes] = (resumenMensual[mes] || 0) + d.monto;
+            });
+
+            // 🔄 Eliminar gráfico anterior si existe
+            if (chartCampanas) chartCampanas.destroy();
+            if (chartPeriodos) chartPeriodos.destroy();
+
+            // Colores cálidos para los gráficos
+            const colorPalette = [
+                '#FF6B35', '#C0392B', '#FF9E2C', '#E67E22',
+                '#D35400', '#F39C12', '#E74C3C', '#F8C471'
+            ];
+
+            // 🎯 Renderizar gráfico de distribución por campaña
+            const ctx1 = document.getElementById("graficoDonaciones").getContext("2d");
+            chartCampanas = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(resumenCampanas),
+                    datasets: [{
+                        data: Object.values(resumenCampanas),
+                        backgroundColor: colorPalette,
+                        borderWidth: 1,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            // 📊 Renderizar gráfico de donaciones por mes
+            const ctx2 = document.getElementById("graficoPeriodos").getContext("2d");
+            chartPeriodos = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(resumenMensual),
+                    datasets: [{
+                        label: 'Total donado por mes (Bs)',
+                        data: Object.values(resumenMensual),
+                        backgroundColor: '#FF6B35',
+                        borderColor: '#C0392B',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function verDetalle(donacionId) {
+            // Buscar la donación en el array
+            const donacion = todasLasDonaciones.find(d => d.donacionId === donacionId);
+
+            if (!donacion) {
+                alert("No se encontró información para esta donación");
+                return;
+            }
+
+            const fechaFormateada = new Date(donacion.fechaDonacion).toLocaleDateString('es-BO', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            // Llenar modal con información detallada
+            document.getElementById("detalleModalLabel").textContent = `Donación #${donacion.donacionId}`;
+
+            const modalBody = document.getElementById("detalleModalBody");
+            modalBody.innerHTML = `
+                        <div class="card mb-3 border-0">
+                            <div class="card-body p-0">
+                                <dl class="row">
+                                    <dt class="col-sm-4">Campaña:</dt>
+                                    <dd class="col-sm-8">${donacion.campania?.titulo ?? 'Campaña ' + donacion.campaniaId}</dd>
+
+                                    <dt class="col-sm-4">Donante:</dt>
+                                    <dd class="col-sm-8">${donacion.usuario?.nombre ?? 'Anónimo'}</dd>
+
+                                    <dt class="col-sm-4">Monto:</dt>
+                                    <dd class="col-sm-8">${donacion.monto.toFixed(2)} Bs</dd>
+
+                                    <dt class="col-sm-4">Tipo:</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge rounded-pill ${donacion.tipoDonacion === 'Monetaria' ? 'badge-monetaria' : 'badge-especie'}">
+                                            ${donacion.tipoDonacion}
+                                        </span>
+                                    </dd>
+
+                                    <dt class="col-sm-4">Fecha:</dt>
+                                    <dd class="col-sm-8">${fechaFormateada}</dd>
+
+                                    <dt class="col-sm-4">Descripción:</dt>
+                                    <dd class="col-sm-8">${donacion.descripcion || 'Sin descripción'}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    `;
+
+            // Mostrar modal
+            detalleModal.show();
+        }
+
+        async function generarReporteCSV() {
+            let csv = "ID,Campaña,Donante,Monto,Tipo,Fecha\n";
+            todasLasDonaciones.forEach(d => {
+                csv += `${d.donacionId},${d.campania?.titulo ?? 'Campaña ' + d.campaniaId},${d.usuario?.nombre ?? 'Anónimo'},${d.monto},${d.tipoDonacion},${new Date(d.fechaDonacion).toLocaleDateString()}\n`;
+            });
+
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "ReporteDonaciones.csv";
+            link.click();
+        }
+
+        async function generarReportePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Título del documento
+            doc.setTextColor(192, 57, 43); // Color rojo similar al de la interfaz
+            doc.setFontSize(20);
+            doc.text("Reporte de Donaciones", 105, 15, { align: 'center' });
+
+            // Información del reporte
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            const fechaActual = new Date().toLocaleDateString('es-BO');
+            doc.text(`Fecha de generación: ${fechaActual}`, 20, 25);
+            doc.text(`Total de donaciones: ${todasLasDonaciones.length}`, 20, 30);
+
+            const montoTotal = todasLasDonaciones.reduce((total, d) => total + d.monto, 0);
+            doc.text(`Monto total: ${montoTotal.toFixed(2)} Bs`, 20, 35);
+
+            // Tabla de datos
+            const headers = ["ID", "Campaña", "Donante", "Monto", "Tipo", "Fecha"];
+            const rows = todasLasDonaciones.map(d => [
+                d.donacionId,
+                d.campania?.titulo ?? `Campaña ${d.campaniaId}`,
+                d.usuario?.nombre ?? 'Anónimo',
+                d.monto.toFixed(2),
+                d.tipoDonacion,
+                new Date(d.fechaDonacion).toLocaleDateString()
+            ]);
+
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 45,
+                headStyles: {
+                    fillColor: [255, 107, 53], // Color naranja similar al de la interfaz
+                    textColor: [255, 255, 255],
+                    halign: 'center'
+                },
+                alternateRowStyles: {
+                    fillColor: [255, 243, 224] // Color de fondo claro similar al de la interfaz
+                }
+            });
+
+            doc.save("ReporteDonaciones.pdf");
+        }
+
+        cargarDonaciones();
+    </script>
+</body>
+</html>

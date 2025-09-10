@@ -1,0 +1,256 @@
+﻿@model donacionesWeb.Models.DonacionesAsignacione
+@{
+    ViewData["Title"] = "Asignar Donación a la Asignación";
+    int asignacionId = ViewBag.AsignacionId;
+    var donaciones = ViewBag.Donaciones as List<SelectListItem> ?? new List<SelectListItem>();
+    decimal montoTotal = ViewBag.MontoAsignacion ?? 0;
+    decimal yaAsignado = ViewBag.YaAsignado ?? 0;
+    decimal faltante = ViewBag.Faltante ?? 0;
+}
+
+<style>
+    :root {
+        --primary-orange: #ff7d1a;
+        --primary-red: #e53e3e;
+        --light-orange: #ffecd9;
+        --dark-orange: #e76f00;
+        --light-red: #fed7d7;
+        --dark-red: #c53030;
+        --bg-gradient: linear-gradient(135deg, #ff7d1a 0%, #e53e3e 100%);
+    }
+
+    .card-donacion {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card-header-asignacion {
+        background: var(--bg-gradient);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .btn-asignar {
+        background: var(--bg-gradient);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-asignar:hover {
+            background: linear-gradient(135deg, var(--dark-orange) 0%, var(--dark-red) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+    .btn-cancelar {
+        border: 1px solid #ccc;
+        transition: all 0.3s ease;
+    }
+
+        .btn-cancelar:hover {
+            background-color: #e9ecef;
+        }
+
+    .progress-bar-asignacion {
+        height: 10px;
+        border-radius: 5px;
+        background-color: #e9ecef;
+        margin: 1rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 5px;
+        background: var(--bg-gradient);
+        transition: width 0.5s ease;
+    }
+
+    .stat-card {
+        border-left: 4px solid var(--primary-orange);
+        padding: 0.75rem 1rem;
+        background-color: var(--light-orange);
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(255, 125, 26, 0.25);
+        border-color: var(--primary-orange);
+    }
+
+    .alert-success-custom {
+        background-color: #f0fff4;
+        border-color: #c6f6d5;
+        color: #2f855a;
+    }
+
+    .alert-info-custom {
+        background-color: var(--light-orange);
+        border-color: var(--primary-orange);
+        color: #723b13;
+    }
+
+    .alert-danger-custom {
+        background-color: var(--light-red);
+        border-color: var(--primary-red);
+        color: var(--dark-red);
+    }
+
+    .faltante-negativo {
+        color: #2f855a !important;
+    }
+
+    .faltante-positivo {
+        color: var(--primary-red) !important;
+    }
+
+    .select-custom {
+        background-color: #fff;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card-donacion">
+        <div class="card-header-asignacion">
+            <h2 class="m-0">@ViewData["Title"]</h2>
+        </div>
+        <div class="card-body p-4">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success-custom alert-dismissible fade show" role="alert">
+                    <strong>¡Éxito!</strong> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger-custom">
+                    <strong>Error:</strong>
+                    <ul class="mb-0 ps-3">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Total requerido</div>
+                        <div class="stat-value">Bs @montoTotal.ToString("N2")</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Ya asignado</div>
+                        <div class="stat-value">Bs @yaAsignado.ToString("N2")</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Faltante</div>
+                        <div class="stat-value @(faltante <= 0 ? "faltante-negativo" : "faltante-positivo")">
+                            Bs @faltante.ToString("N2")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-bar-asignacion">
+                @{
+                    var porcentajeCompletado = montoTotal > 0 ? (int)Math.Min(100, (yaAsignado / montoTotal) * 100) : 0;
+                }
+                <div class="progress-fill" style="width: @porcentajeCompletado%;"></div>
+            </div>
+            <div class="text-center mb-4">
+                <small>@porcentajeCompletado% completado</small>
+            </div>
+
+            @if (faltante <= 0)
+            {
+                <div class="alert alert-success-custom text-center">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>¡Asignación completa!</strong> Ya se ha asignado todo el monto requerido. No se pueden hacer más asignaciones.
+                </div>
+            }
+            else
+            {
+                <div class="card-donacion p-4 border">
+                    <h5 class="mb-3" style="color: var(--primary-orange);">Formulario de Asignación</h5>
+
+                    <form asp-action="AsignarDonacion" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="AsignacionId" value="@asignacionId" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="DonacionId" class="form-label fw-bold">Selecciona una donación</label>
+                            <select asp-for="DonacionId" asp-items="donaciones" class="form-control form-select select-custom" required>
+                                <option value="">-- Seleccione una donación disponible --</option>
+                            </select>
+                            <span asp-validation-for="DonacionId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="MontoAsignado" class="form-label fw-bold">Monto a asignar (Bs)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Bs</span>
+                                <input asp-for="MontoAsignado" class="form-control" type="number" min="0.01" step="0.01" max="@faltante" required />
+                            </div>
+                            <small class="text-muted">El monto máximo a asignar es de Bs @faltante.ToString("N2")</small>
+                            <span asp-validation-for="MontoAsignado" class="text-danger d-block mt-1"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-asignar px-4 py-2">
+                                <i class="bi bi-check-circle me-2"></i>Asignar Donación
+                            </button>
+                            <a asp-action="Index" class="btn btn-cancelar px-4 py-2">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        // Validación adicional para el monto asignado
+        $(document).ready(function () {
+            const faltante = @Html.Raw(Json.Serialize(faltante));
+
+            $('form').on('submit', function (e) {
+                const montoAsignado = parseFloat($('#MontoAsignado').val());
+
+                if (montoAsignado > faltante) {
+                    e.preventDefault();
+                    alert('El monto asignado no puede ser mayor que el faltante (' + faltante.toFixed(2) + ' Bs)');
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+}

@@ -1,0 +1,300 @@
+﻿@model donacionesWeb.Models.ViewModels.DetalleDonacionViewModel
+
+@{
+    ViewData["Title"] = "Detalles de donación";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Detalles de tu donación</h2>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Donación #@Model.Donacion.DonacionId</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2 mb-3">Información general</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Fecha:</dt>
+                        <dd class="col-sm-8">@Model.Donacion.FechaDonacion?.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">Monto:</dt>
+                        <dd class="col-sm-8">@Model.Donacion.Monto.ToString("C")</dd>
+
+                        <dt class="col-sm-4">Tipo:</dt>
+                        <dd class="col-sm-8">@Model.Donacion.TipoDonacion</dd>
+
+                        <dt class="col-sm-4">Descripción:</dt>
+                        <dd class="col-sm-8">@(Model.Donacion.Descripcion ?? "No especificada")</dd>
+
+                        <dt class="col-sm-4">Estado:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Donacion.EstadoId == 1)
+                            {
+                                <span class="badge badge-warning">Pendiente</span>
+                            }
+                            else if (Model.Donacion.EstadoId == 2)
+                            {
+                                <span class="badge badge-success">Completada</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Otro</span>
+                            }
+                        </dd>
+
+                        @if (Model.Donacion.EsAnonima.HasValue)
+                        {
+                            <dt class="col-sm-4">Visibilidad:</dt>
+                            <dd class="col-sm-8">@(Model.Donacion.EsAnonima.Value ? "Anónima" : "Pública")</dd>
+                        }
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2 mb-3">Campaña apoyada</h5>
+                    @if (Model.Campania != null)
+                    {
+                        <dl class="row">
+                            <dt class="col-sm-4">Título:</dt>
+                            <dd class="col-sm-8">@Model.Campania.Titulo</dd>
+
+                            <dt class="col-sm-4">Descripción:</dt>
+                            <dd class="col-sm-8">@Model.Campania.Descripcion</dd>
+
+                            <dt class="col-sm-4">Período:</dt>
+                            <dd class="col-sm-8">
+                                @Model.Campania.FechaInicio.ToString("dd/MM/yyyy")
+                                @if (Model.Campania.FechaFin.HasValue)
+                                {
+                                    <span> - @Model.Campania.FechaFin.Value.ToString("dd/MM/yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span> - Indefinido</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Estado:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.Campania.Activa == true)
+                                {
+                                    <span class="badge badge-success">Activa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Inactiva</span>
+                                }
+                            </dd>
+                        </dl>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Información de la campaña no disponible</p>
+                    }
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2 mb-3">Estado de los fondos</h5>
+
+                    @if (Model.SaldoDonacion != null)
+                    {
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="progress mb-3" style="height: 25px;">
+                                    @{
+                                        var porcentajeUtilizado = Model.SaldoDonacion.MontoOriginal > 0
+                                        ? (Model.SaldoDonacion.MontoUtilizado ?? 0) / Model.SaldoDonacion.MontoOriginal * 100
+                                        : 0;
+                                    }
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: @porcentajeUtilizado.ToString("F0")%;"
+                                         aria-valuenow="@porcentajeUtilizado.ToString("F0")"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                        @porcentajeUtilizado.ToString("F1")%
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card text-center mb-3">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Monto original</h6>
+                                                <p class="card-text h4">@Model.SaldoDonacion.MontoOriginal.ToString("C")</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-center mb-3">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Monto utilizado</h6>
+                                                <p class="card-text h4">@(Model.SaldoDonacion.MontoUtilizado?.ToString("C") ?? "$0.00")</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-center mb-3">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Saldo disponible</h6>
+                                                <p class="card-text h4">@Model.SaldoDonacion.SaldoDisponible.ToString("C")</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-right text-muted">
+                                    <small>Última actualización: @(Model.SaldoDonacion.UltimaActualizacion?.ToString("dd/MM/yyyy HH:mm") ?? "No disponible")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No hay información disponible sobre el saldo de esta donación.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Asignaciones de fondos</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.Asignaciones.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Monto</th>
+                                <th>Comprobante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var asignacion in Model.Asignaciones.OrderByDescending(a => a.FechaAsignacion))
+                            {
+                                <tr>
+                                    <td>@asignacion.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>@asignacion.Asignacion.Descripcion</td>
+                                    <td>@asignacion.MontoAsignado.ToString("C")</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(asignacion.ComprobanteUrl))
+                                        {
+                                            <a href="@asignacion.ComprobanteUrl" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-file-earmark-text"></i> Ver
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No disponible</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" type="button"
+                                                data-toggle="collapse"
+                                                data-target="#detallesAsignacion@(asignacion.Asignacion.AsignacionId)"
+                                                aria-expanded="false">
+                                            <i class="bi bi-list-ul"></i> Detalles
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="p-0">
+                                        <div class="collapse" id="detallesAsignacion@(asignacion.Asignacion.AsignacionId)">
+                                            <div class="card card-body m-2">
+                                                @if (asignacion.DetallesAsignacion.Any())
+                                                {
+                                                    <h6>Detalles de la asignación</h6>
+                                                    <table class="table table-sm table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Concepto</th>
+                                                                <th>Cantidad</th>
+                                                                <th>Precio unitario</th>
+                                                                <th>Subtotal</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var detalle in asignacion.DetallesAsignacion)
+                                                            {
+                                                                <tr>
+                                                                    <td>@detalle.Concepto</td>
+                                                                    <td>@detalle.Cantidad</td>
+                                                                    <td>@detalle.PrecioUnitario.ToString("C")</td>
+                                                                    <td>@((detalle.Cantidad * detalle.PrecioUnitario).ToString("C"))</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                                                <td>
+                                                                    <strong>
+                                                                        @asignacion.DetallesAsignacion.Sum(d => d.Cantidad * d.PrecioUnitario).ToString("C")
+                                                                    </strong>
+                                                                </td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted mb-0">No hay detalles disponibles para esta asignación.</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">Resumen de asignaciones</h5>
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <p><strong>Total asignaciones:</strong> @Model.Asignaciones.Count</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Monto total asignado:</strong> @Model.Asignaciones.Sum(a => a.MontoAsignado).ToString("C")</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Primera asignación:</strong> @Model.Asignaciones.Min(a => a.FechaAsignacion).ToString("dd/MM/yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Aún no se han realizado asignaciones para esta donación.
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4 mb-5 text-center">
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a la lista de donaciones
+        </a>
+    </div>
+</div>

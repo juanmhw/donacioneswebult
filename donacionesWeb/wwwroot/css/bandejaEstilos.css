@@ -1,0 +1,219 @@
+﻿/* Estilos para la Bandeja de Mensajes */
+
+:root {
+    --naranja-principal: #FF7043;
+    --naranja-claro: #FFA270;
+    --rojo-oscuro: #A13E2B;
+    --beige: #FFF2E6;
+    --blanco: #FFFFFF;
+    --gris-claro: #f5f5f5;
+    --gris-medio: #e0e0e0;
+    --texto-oscuro: #333333;
+}
+
+body {
+    background-color: var(--beige);
+    color: var(--texto-oscuro);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor principal */
+.container {
+    background-color: var(--blanco);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+/* Encabezado */
+h2 {
+    color: var(--rojo-oscuro);
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--naranja-claro);
+    padding-bottom: 10px;
+}
+
+/* Alertas personalizadas */
+.alert-success {
+    background-color: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+.alert-danger {
+    background-color: #ffebee;
+    border-color: #ffcdd2;
+    color: #c62828;
+}
+
+/* Pestañas de navegación */
+.nav-tabs {
+    border-bottom: 2px solid var(--naranja-claro);
+}
+
+    .nav-tabs .nav-link {
+        color: var(--texto-oscuro);
+        border: none;
+        font-weight: 500;
+        padding: 10px 20px;
+        border-radius: 6px 6px 0 0;
+        transition: all 0.3s ease;
+    }
+
+        .nav-tabs .nav-link:hover {
+            background-color: var(--naranja-claro);
+            color: var(--blanco);
+            border: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: var(--naranja-principal);
+            color: var(--blanco);
+            border: none;
+            font-weight: 600;
+        }
+
+/* Tarjetas */
+.card {
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--naranja-principal);
+    color: var(--blanco);
+    font-weight: 600;
+    padding: 15px 20px;
+    border-bottom: none;
+}
+
+/* Tabla de mensajes */
+.table {
+    margin-bottom: 0;
+}
+
+    .table thead th {
+        background-color: var(--gris-claro);
+        color: var(--texto-oscuro);
+        font-weight: 600;
+        border-bottom: 2px solid var(--naranja-claro);
+        padding: 12px 15px;
+    }
+
+    .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 112, 67, 0.05);
+}
+
+/* Mensajes no leídos */
+.table-primary {
+    background-color: rgba(255, 162, 112, 0.1);
+}
+
+.table-hover .table-primary:hover {
+    background-color: rgba(255, 162, 112, 0.2);
+}
+
+/* Botones */
+.btn-outline-primary {
+    color: var(--naranja-principal);
+    border-color: var(--naranja-principal);
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--naranja-principal);
+        border-color: var(--naranja-principal);
+        color: var(--blanco);
+    }
+
+.btn-primary {
+    background-color: var(--naranja-principal);
+    border-color: var(--naranja-principal);
+}
+
+    .btn-primary:hover {
+        background-color: var(--rojo-oscuro);
+        border-color: var(--rojo-oscuro);
+    }
+
+/* Badges personalizados */
+.badge.bg-primary {
+    background-color: var(--naranja-principal) !important;
+}
+
+.badge.bg-success {
+    background-color: #4caf50 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #757575 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+/* Mensaje vacío */
+.text-muted {
+    color: #757575 !important;
+    font-style: italic;
+}
+
+/* Estados de mensajes */
+.badge {
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+        .table tr {
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--gris-medio);
+        }
+
+        .table td {
+            text-align: right;
+            position: relative;
+            padding-left: 50%;
+        }
+
+            .table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 45%;
+                padding-left: 15px;
+                font-weight: 600;
+                text-align: left;
+            }
+
+    .btn-sm {
+        padding: 8px 12px;
+        width: 100%;
+        margin-top: 5px;
+    }
+}

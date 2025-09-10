@@ -1,0 +1,245 @@
+﻿/* Paleta de colores extraída y acentuada */
+:root {
+    --primary-color: #FF5A31; /* Naranja principal acentuado */
+    --primary-light: #FF7D5A; /* Naranja claro */
+    --primary-dark: #E53E16; /* Naranja oscuro */
+    --secondary-color: #FF8C42; /* Naranja secundario */
+    --accent-color: #E71D36; /* Rojo acento */
+    --background-color: #FFF4E9; /* Fondo beige claro */
+    --text-color: #333333; /* Texto principal */
+    --light-text: #666666; /* Texto secundario */
+    --white: #FFFFFF; /* Blanco */
+    --card-bg: #FFFFFF; /* Fondo de tarjetas */
+    --border-color: #FFDECC; /* Borde suave */
+    --hover-color: #FFC2A6; /* Color hover */
+}
+
+/* Estilos generales del body */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos para el contenedor principal */
+.container {
+    flex: 1;
+}
+
+/* Estilos para el navbar */
+.navbar {
+    background-color: var(--white) !important;
+    box-shadow: 0 2px 10px rgba(255, 90, 49, 0.1);
+    padding: 0.5rem 1rem;
+}
+
+.navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+    font-size: 1.3rem;
+    transition: color 0.3s;
+}
+
+    .navbar-brand:hover {
+        color: var(--primary-dark) !important;
+    }
+
+.navbar-light .navbar-toggler {
+    border-color: var(--border-color);
+}
+
+.navbar-light .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 90, 49, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Estilos para los enlaces de navegación */
+.nav-link {
+    color: var(--text-color) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+    .nav-link:hover {
+        color: var(--primary-color) !important;
+        background-color: rgba(255, 90, 49, 0.05);
+    }
+
+    .nav-link i {
+        margin-right: 0.4rem;
+    }
+
+/* Estilos para los dropdowns */
+.dropdown-menu {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    color: var(--text-color);
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s ease;
+}
+
+    .dropdown-item:hover, .dropdown-item:focus {
+        background-color: rgba(255, 90, 49, 0.08);
+        color: var(--primary-dark);
+    }
+
+    .dropdown-item i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+        width: 1rem;
+        text-align: center;
+    }
+
+/* Estilos para botones */
+.btn-link {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+    .btn-link:hover {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transition: all 0.3s;
+}
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+/* Estilos para info de usuario */
+.navbar-nav .nav-link i.fas.fa-user-circle {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.navbar-nav .form-inline button i.fas.fa-sign-out-alt {
+    color: var(--accent-color);
+}
+
+/* Estilos para el footer */
+.footer {
+    background-color: var(--white);
+    border-top: 1px solid var(--border-color) !important;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    color: var(--light-text);
+}
+
+    .footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+        .footer a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+/* Animaciones generales */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Estilos específicos para página de autenticación */
+.auth-page {
+    background-color: var(--background-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+    .auth-page .container {
+        max-width: 420px;
+        padding: 2rem;
+        background-color: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+    }
+
+    .auth-page h1, .auth-page h2, .auth-page h3 {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .auth-page .form-control {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+
+        .auth-page .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 90, 49, 0.25);
+        }
+
+    .auth-page .btn-primary {
+        width: 100%;
+        padding: 0.75rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+    }
+
+/* Estilos para badges y elementos informativos */
+.badge {
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.bg-info {
+    background-color: var(--secondary-color) !important;
+    color: white;
+}
+
+/* Mejoras responsivas */
+@media (max-width: 768px) {
+    .navbar-collapse {
+        background-color: var(--white);
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-top: 0.5rem;
+    }
+
+    .navbar-nav .nav-item {
+        margin-bottom: 0.5rem;
+    }
+}

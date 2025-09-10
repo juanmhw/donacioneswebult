@@ -1,0 +1,218 @@
+﻿@model donacionesWeb.Models.ViewModels.ConversacionDetalleViewModel
+@{
+    ViewData["Title"] = $"Conversación con {Model.OtroUsuario.Nombre} {Model.OtroUsuario.Apellido}";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header de la conversación -->
+            <div class="card shadow mb-3">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <a asp-action="Index" class="btn btn-outline-light btn-sm me-3">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                        <div class="avatar-circle bg-light text-primary me-3">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">@Model.OtroUsuario.Nombre @Model.OtroUsuario.Apellido</h5>
+                            <small class="opacity-75">@Model.OtroUsuario.Email</small>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="badge bg-light text-primary">
+                            @Model.MensajesYRespuestas.Count mensajes
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Área de mensajes -->
+            <div class="card shadow">
+                <div class="card-body p-0" style="height: 60vh; overflow-y: auto;" id="mensajesContainer">
+                    @if (Model.MensajesYRespuestas.Any())
+                    {
+                        <div class="p-3">
+                            @foreach (var item in Model.MensajesYRespuestas)
+                            {
+                                @if (item is donacionesWeb.Models.Mensaje mensaje)
+                                {
+                                    <div class="mensaje-bubble mb-3 @(mensaje.UsuarioOrigen == Model.UsuarioActualId ? "enviado" : "recibido")">
+                                        <div class="mensaje-header d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted fw-bold">
+                                                @(mensaje.UsuarioOrigen == Model.UsuarioActualId ? "Tú" : mensaje.NombreUsuarioOrigen)
+                                            </small>
+                                            <small class="text-muted">
+                                                @mensaje.FechaEnvio?.ToString("dd/MM/yyyy HH:mm")
+                                            </small>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(mensaje.Asunto))
+                                        {
+                                            <div class="mensaje-asunto mb-2">
+                                                <strong>@mensaje.Asunto</strong>
+                                            </div>
+                                        }
+                                        <div class="mensaje-contenido">
+                                            @Html.Raw(mensaje.Contenido.Replace("\n", "<br />"))
+                                        </div>
+                                    </div>
+                                }
+                                else if (item is donacionesWeb.Models.RespuestaMensaje respuesta)
+                                {
+                                    <div class="mensaje-bubble mb-3 @(respuesta.UsuarioId == Model.UsuarioActualId ? "enviado" : "recibido")">
+                                        <div class="mensaje-header d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted fw-bold">
+                                                @(respuesta.UsuarioId == Model.UsuarioActualId ? "Tú" : respuesta.NombreUsuario)
+                                            </small>
+                                            <small class="text-muted">
+                                                @respuesta.FechaRespuesta?.ToString("dd/MM/yyyy HH:mm")
+                                            </small>
+                                        </div>
+                                        <div class="mensaje-contenido">
+                                            @Html.Raw(respuesta.Contenido.Replace("\n", "<br />"))
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center">
+                            <i class="bi bi-chat display-1 text-muted"></i>
+                            <h4 class="mt-3 text-muted">No hay mensajes</h4>
+                            <p class="text-muted">Esta conversación está vacía.</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Área de respuesta -->
+                <div class="card-footer bg-light">
+                    <form asp-action="Responder" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="MensajeId" value="@(Model.MensajesYRespuestas.OfType<donacionesWeb.Models.Mensaje>().FirstOrDefault()?.MensajeId ?? 0)" />
+                        <input type="hidden" name="OtroUsuarioId" value="@Model.OtroUsuario.UsuarioId" />
+
+                        <div class="flex-grow-1">
+                            <textarea name="Contenido"
+                                      class="form-control"
+                                      rows="2"
+                                      placeholder="Escribe tu respuesta aquí..."
+                                      required
+                                      style="resize: none;"></textarea>
+                        </div>
+                        <div class="align-self-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Enviar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .mensaje-bubble {
+        max-width: 70%;
+        margin-bottom: 1rem;
+    }
+
+        .mensaje-bubble.enviado {
+            margin-left: auto;
+        }
+
+            .mensaje-bubble.enviado .mensaje-contenido {
+                background-color: #0d6efd;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 18px 18px 4px 18px;
+            }
+
+        .mensaje-bubble.recibido .mensaje-contenido {
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid #dee2e6;
+        }
+
+    .mensaje-asunto {
+        font-size: 0.9rem;
+        color: #6c757d;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 5px;
+    }
+
+    .mensaje-header {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    #mensajesContainer {
+        scroll-behavior: smooth;
+    }
+
+    /* Auto-scroll al final */
+
+
+    {
+        max-width: 85%;
+    }
+
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-scroll al final de los mensajes
+            var container = document.getElementById('mensajesContainer');
+            container.scrollTop = container.scrollHeight;
+
+            // Focus en el textarea
+            $('textarea[name="Contenido"]').focus();
+
+            // Enviar con Ctrl+Enter
+            $('textarea[name="Contenido"]').keydown(function(e) {
+                if (e.ctrlKey && e.keyCode === 13) {
+                    $(this).closest('form').submit();
+                }
+            });
+
+            // Auto-resize del textarea
+            $('textarea[name="Contenido"]').on('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+    </script>
+}

@@ -1,0 +1,643 @@
+﻿@model donacionesWeb.Models.Campania
+@{
+    ViewData["Title"] = "Crear Campaña";
+    Layout = "_Layout";
+}
+
+<link href="~/css/crear-campana.css" rel="stylesheet" />
+
+<style>
+    .campaign-form-container {
+        background: linear-gradient(135deg, #ff6b47 0%, #ff8e53 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(255, 107, 71, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #ff6b47, #ff8e53);
+        color: white;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="0%" r="100%"><stop offset="0%" stop-color="rgba(255,255,255,0.1)" /><stop offset="100%" stop-color="rgba(255,255,255,0)" /></radialGradient></defs><rect width="100" height="20" fill="url(%23a)" /></svg>');
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-header p {
+            margin: 0.8rem 0 0 0;
+            opacity: 0.95;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+    .form-body {
+        padding: 3rem 2.5rem;
+        background: linear-gradient(180deg, #fefefe 0%, #f8f9fa 100%);
+    }
+
+    .form-group {
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.8rem;
+        font-size: 1.05rem;
+        display: block;
+    }
+
+        .form-label i {
+            color: #ff6b47;
+            margin-right: 0.5rem;
+        }
+
+    .required-asterisk {
+        color: #ff6b47;
+        margin-left: 0.25rem;
+        font-weight: bold;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.2rem 1.5rem;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(5px);
+        color: #2c3e50;
+    }
+
+        .form-control:focus {
+            border-color: #ff6b47;
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 71, 0.25);
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 130px;
+        font-family: inherit;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .file-input {
+        position: relative;
+        border: 2px dashed #ff6b47;
+        border-radius: 15px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, rgba(255, 107, 71, 0.05), rgba(255, 142, 83, 0.05));
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+        .file-input::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 71, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .file-input:hover::before {
+            left: 100%;
+        }
+
+        .file-input:hover {
+            border-color: #ff8e53;
+            background: linear-gradient(135deg, rgba(255, 107, 71, 0.08), rgba(255, 142, 83, 0.08));
+            transform: translateY(-2px);
+        }
+
+        .file-input input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+    .file-input-content {
+        pointer-events: none;
+        position: relative;
+        z-index: 1;
+    }
+
+    .file-icon {
+        font-size: 3.5rem;
+        color: #ff6b47;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .file-input:hover .file-icon {
+        color: #ff8e53;
+        transform: scale(1.1);
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #ff6b47, #ff8e53);
+        border: none;
+        border-radius: 15px;
+        padding: 1.3rem 2.5rem;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: white;
+        width: 100%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 25px rgba(255, 107, 71, 0.3);
+    }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 71, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 1.3rem 1.8rem;
+        margin-bottom: 2.5rem;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #00b894, #00cec9);
+        color: white;
+        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.2);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #e17055, #d63031);
+        color: white;
+        box-shadow: 0 8px 25px rgba(225, 112, 85, 0.2);
+    }
+
+        .alert-danger ul {
+            margin: 0.8rem 0 0 0;
+            padding-left: 1.5rem;
+        }
+
+        .alert-danger li {
+            margin-bottom: 0.3rem;
+        }
+
+    .text-danger {
+        color: #ff6b47 !important;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: block;
+        font-weight: 500;
+    }
+
+    .form-icon {
+        position: absolute;
+        right: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ff6b47;
+        pointer-events: none;
+        font-size: 1.1rem;
+    }
+
+    .input-with-icon {
+        position: relative;
+    }
+
+        .input-with-icon .form-control {
+            padding-right: 3.5rem;
+        }
+
+    .breadcrumb-section {
+        background: rgba(255, 107, 71, 0.1);
+        padding: 1rem 0;
+        margin-bottom: 0;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    .breadcrumb-item a {
+        color: #ff6b47;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-item.active {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .stats-preview {
+        background: linear-gradient(135deg, rgba(255, 107, 71, 0.08), rgba(255, 142, 83, 0.08));
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 107, 71, 0.2);
+    }
+
+        .stats-preview h6 {
+            color: #ff6b47;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .stats-preview p {
+            color: #6c757d;
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+    @@media (max-width: 768px) {
+        .campaign-form-container
+
+    {
+        padding: 1rem;
+    }
+
+    .form-body {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-header {
+        padding: 2rem 1.5rem;
+    }
+
+        .form-header h2 {
+            font-size: 1.8rem;
+        }
+
+        .form-header p {
+            font-size: 1rem;
+        }
+
+    .file-input {
+        padding: 2rem 1rem;
+    }
+
+    .submit-btn {
+        padding: 1.2rem 2rem;
+        font-size: 1rem;
+    }
+
+    }
+
+    /* Animaciones adicionales */
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .form-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .form-group {
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: backwards;
+    }
+
+        .form-group:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .form-group:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .form-group:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .form-group:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .form-group:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+</style>
+
+<!-- Sección de breadcrumb -->
+<div class="breadcrumb-section">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")"><i class="bi bi-house-door"></i> Inicio</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Campania")">Campañas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Nueva Campaña</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="campaign-form-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2><i class="bi bi-heart-fill me-3"></i>Nueva Campaña</h2>
+                        <p>Crea una campaña para ayudar a quienes más lo necesitan</p>
+                    </div>
+
+                    <div class="form-body">
+                        <!-- Vista previa de estadísticas -->
+                        <div class="stats-preview">
+                            <h6><i class="bi bi-info-circle-fill me-2"></i>Información importante</h6>
+                            <p>Una vez creada tu campaña, será revisada por nuestro equipo antes de ser publicada. Te notificaremos por email cuando esté activa.</p>
+                        </div>
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <strong>Por favor, corrige los siguientes errores:</strong>
+                                <ul class="mb-0">
+                                    @foreach (var entry in ViewData.ModelState)
+                                    {
+                                        foreach (var error in entry.Value.Errors)
+                                        {
+                                            <li><strong>@entry.Key:</strong> @error.ErrorMessage</li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        <form asp-action="Crear" method="post" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-group">
+                                <label asp-for="Titulo" class="form-label">
+                                    <i class="bi bi-card-heading"></i>
+                                    Título de la Campaña
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <input asp-for="Titulo" class="form-control" placeholder="Ej. Ayuda médica para zonas rurales" maxlength="100" />
+                                    <i class="bi bi-pencil form-icon"></i>
+                                </div>
+                                <span asp-validation-for="Titulo" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Descripcion" class="form-label">
+                                    <i class="bi bi-card-text"></i>
+                                    Descripción detallada
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                <textarea asp-for="Descripcion" class="form-control" rows="5"
+                                          placeholder="Describe detalladamente el propósito de la campaña, quiénes se beneficiarán, cómo se utilizarán los fondos y cualquier información relevante que ayude a los donantes a entender la importancia de su contribución..."></textarea>
+                                <span asp-validation-for="Descripcion" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="MetaRecaudacion" class="form-label">
+                                    <i class="bi bi-currency-dollar"></i>
+                                    Meta de Recaudación (Bs)
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <input asp-for="MetaRecaudacion" class="form-control" type="number" step="0.01" min="1"
+                                           placeholder="Ej. 10000.00" />
+                                    <i class="bi bi-cash-stack form-icon"></i>
+                                </div>
+                                <span asp-validation-for="MetaRecaudacion" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-image"></i>
+                                    Imagen de la Campaña
+                                    <small class="text-muted ms-2">(Recomendado - Aumenta las donaciones hasta un 40%)</small>
+                                </label>
+                                <div class="file-input-wrapper">
+                                    <div class="file-input">
+                                        <input type="file" name="imagen" accept="image/*" />
+                                        <div class="file-input-content">
+                                            <div class="file-icon">
+                                                <i class="bi bi-cloud-upload-fill"></i>
+                                            </div>
+                                            <p class="mb-2"><strong>Haz clic para subir una imagen</strong></p>
+                                            <small class="text-muted">O arrastra y suelta aquí (JPG, PNG, máx. 5MB)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="submit-btn">
+                                    <i class="bi bi-heart-fill me-2"></i>
+                                    Crear Campaña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        // Mejorar la experiencia del input de archivo
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const fileInputContent = document.querySelector('.file-input-content');
+            const originalContent = fileInputContent.innerHTML;
+
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    const fileSize = (e.target.files[0].size / 1024 / 1024).toFixed(2);
+
+                    fileInputContent.innerHTML = `
+                        <div class="file-icon">
+                            <i class="bi bi-check-circle-fill" style="color: #00b894;"></i>
+                        </div>
+                        <p class="mb-1"><strong>Archivo seleccionado:</strong></p>
+                        <small class="d-block" style="color: #00b894; font-weight: 600;">${fileName}</small>
+                        <small class="text-muted">Tamaño: ${fileSize} MB</small>
+                    `;
+                } else {
+                    fileInputContent.innerHTML = originalContent;
+                }
+            });
+
+            // Prevenir comportamiento por defecto del drag and drop
+            const fileInputWrapper = document.querySelector('.file-input');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileInputWrapper.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileInputWrapper.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileInputWrapper.addEventListener(eventName, unhighlight, false);
+            });
+
+            fileInputWrapper.addEventListener('drop', handleDrop, false);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                fileInputWrapper.style.borderColor = '#ff8e53';
+                fileInputWrapper.style.background = 'linear-gradient(135deg, rgba(255, 107, 71, 0.12), rgba(255, 142, 83, 0.12))';
+            }
+
+            function unhighlight(e) {
+                fileInputWrapper.style.borderColor = '#ff6b47';
+                fileInputWrapper.style.background = 'linear-gradient(135deg, rgba(255, 107, 71, 0.05), rgba(255, 142, 83, 0.05))';
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+
+            // Validación en tiempo real
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[required], textarea[required]');
+
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
+                        validateField(this);
+                    }
+                });
+            });
+
+            function validateField(field) {
+                const errorElement = field.parentNode.parentNode.querySelector('.text-danger');
+
+                if (field.value.trim() === '') {
+                    field.style.borderColor = '#ff6b47';
+                    field.classList.add('is-invalid');
+                } else {
+                    field.style.borderColor = '#00b894';
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                }
+            }
+        });
+    </script>
+}

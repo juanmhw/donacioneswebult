@@ -1,0 +1,72 @@
+﻿@model donacionesWeb.Models.Feedback
+
+@{
+    ViewData["Title"] = "Enviar comentario";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="m-0">Danos tu opinión</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre</label>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Correo electrónico</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Asunto" class="form-label">Asunto</label>
+                            <input asp-for="Asunto" class="form-control" />
+                            <span asp-validation-for="Asunto" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Calificacion" class="form-label">Calificación</label>
+                            <div class="rating">
+                                <div class="d-flex">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" asp-for="Calificacion" id="rating@(i)" value="@i" />
+                                            <label class="form-check-label" for="rating@(i)">@i ⭐</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <span asp-validation-for="Calificacion" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Texto" class="form-label">Tu mensaje</label>
+                            <textarea asp-for="Texto" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Texto" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Enviar comentario</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

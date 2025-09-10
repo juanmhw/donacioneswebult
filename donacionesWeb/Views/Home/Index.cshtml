@@ -1,8 +1,190 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio | Donaciones Contra Incendios Forestales";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Contador de estadísticas -->
+<div class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="counter-item">
+                    <h2 class="display-4 text-primary fw-bold">125+</h2>
+                    <p class="lead">Incendios combatidos</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="counter-item">
+                    <h2 class="display-4 text-primary fw-bold">1,200+</h2>
+                    <p class="lead">Donantes comprometidos</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="counter-item">
+                    <h2 class="display-4 text-primary fw-bold">15,000+</h2>
+                    <p class="lead">Hectáreas protegidas</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Sección: Tu ayuda genera un cambio real -->
+<div class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">Tu Ayuda Genera Cambio</h2>
+                <p class="lead">
+                    Con cada aporte, fortalecemos a nuestros valientes equipos, proveemos equipamiento esencial y recuperamos
+                    áreas vitales para la vida de nuestra flora y fauna.
+                </p>
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="/Donaciones/Create" class="btn btn-primary btn-lg px-4 me-md-2">Donar Ahora</a>
+                <a href="/Home/About" class="btn btn-outline-light btn-lg px-4">Conoce Nuestra Misión</a>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Equipamiento -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3">
+                            <i class="bi bi-droplet-fill text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4>Equipamiento</h4>
+                        <p>
+                            Aportamos equipos especializados para que cada bombero y voluntario actúe con seguridad en primera línea.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Ayuda Humanitaria -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3">
+                            <i class="bi bi-heart-fill text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4>Ayuda Humanitaria</h4>
+                        <p>
+                            Proveemos asistencia directa a comunidades y familias, aligerando el impacto de cada incendio.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Reforestación -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box mb-3">
+                            <i class="bi bi-tree-fill text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4>Reforestación</h4>
+                        <p>
+                            Restauramos áreas afectadas y promovemos proyectos de reforestación para un mañana más verde.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de Emergencia Actual -->
+<div class="py-5 bg-danger text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold">¡Alerta! Emergencia en Rurrenabaque</h2>
+                <p class="lead">
+                    Los incendios se expanden rápidamente. Se necesita ayuda urgente para reforzar las líneas de emergencia. 
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="/Donaciones/Emergencia" class="btn btn-light btn-lg">Apoya la Emergencia</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonios: Voces de Esperanza -->
+<div class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">Historias de Esperanza</h2>
+                <p class="lead">
+                    Conoce las vivencias de quienes han sentido el impacto de tu ayuda y la fuerza de la comunidad.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Testimonio 1 -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-circle bg-primary text-white">MR</div>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-0">Marco Rodríguez</h5>
+                                <p class="text-muted mb-0">Bombero Forestal</p>
+                            </div>
+                        </div>
+                        <p class="mb-0">
+                            "Gracias a las donaciones, ahora contamos con equipos de protección y herramientas que nos permiten ser más efectivos cada día."
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Testimonio 2 -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar-circle bg-primary text-white">LS</div>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-0">Lucía Suárez</h5>
+                                <p class="text-muted mb-0">Representante Comunitaria</p>
+                            </div>
+                        </div>
+                        <p class="mb-0">
+                            "Nuestra comunidad recibió el apoyo que necesitábamos. Hoy trabajamos juntos por la recuperación y la prevención."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de Comentarios Recientes -->
+@if (ViewData["RecentFeedbacks"] != null)
+{
+    <section class="py-5 bg-light">
+        <div class="container">
+            @await Html.PartialAsync("_RecentFeedbacks", ViewData["RecentFeedbacks"] as IEnumerable<donacionesWeb.Models.Feedback>)
+        </div>
+    </section>
+}
+
+<!-- Estilos adicionales -->
+<style>
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    .counter-item {
+        padding: 20px;
+    }
+    /* Ajusta la imagen del Hero o utiliza un color de fondo alternativo si lo prefieres */
+</style>

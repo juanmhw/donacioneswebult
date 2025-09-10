@@ -1,0 +1,409 @@
+﻿@using donacionesWeb.Models.ViewModels
+@model DetallesAsignacionViewModel
+@{
+    ViewData["Title"] = "Agregar Detalles";
+}
+
+<style>
+    :root {
+        --primary-color: #e94e1b; /* Naranja principal */
+        --secondary-color: #ff8c42; /* Naranja secundario */
+        --accent-color: #d62828; /* Rojo acento */
+        --light-orange: #ffd6b6; /* Naranja claro */
+        --background-color: #fff9f3; /* Fondo cálido muy suave */
+        --text-color: #4a3933; /* Marrón oscuro para texto */
+        --border-color: #f0e0d6; /* Borde suave anaranjado */
+        --form-bg: #ffffff; /* Fondo de formularios */
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+        .page-header h2 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+    .page-subheader {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        background-color: var(--form-bg);
+    }
+
+    .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        padding: 0.8rem 1.25rem;
+        border: none;
+    }
+
+        .card-header.secondary {
+            background-color: var(--secondary-color);
+        }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .form-control {
+        border-color: var(--border-color);
+        border-radius: 6px;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(233, 78, 27, 0.25);
+            border-color: var(--primary-color);
+        }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-custom-primary:hover {
+            background-color: #d24313;
+            border-color: #d24313;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-custom-success {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+    }
+
+        .btn-custom-success:hover {
+            background-color: #f07b35;
+            border-color: #f07b35;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .table-custom {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border-color);
+    }
+
+        .table-custom thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .table-custom th {
+            font-weight: 500;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-custom td {
+            padding: 0.75rem 1rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+
+        .table-custom tbody tr:nth-child(odd) {
+            background-color: rgba(255, 214, 182, 0.1);
+        }
+
+        .table-custom.table-secondary thead {
+            background-color: var(--secondary-color);
+        }
+
+    .total-row {
+        background-color: rgba(233, 78, 27, 0.1);
+        font-weight: 500;
+        border-top: 2px solid var(--primary-color);
+    }
+
+    .validation-text {
+        font-size: 0.85rem;
+        color: var(--accent-color);
+        margin-top: 0.25rem;
+    }
+
+    .alert-custom-danger {
+        background-color: rgba(214, 40, 40, 0.1);
+        border-left: 4px solid var(--accent-color);
+        color: var(--text-color);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 4px;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(to right, var(--border-color), transparent);
+        margin: 2rem 0;
+    }
+
+    .price-badge {
+        background-color: var(--light-orange);
+        color: var(--text-color);
+        padding: 0.35rem 0.65rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .total-summary {
+        font-size: 1.2rem;
+        background-color: rgba(255, 140, 66, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--secondary-color);
+    }
+
+    /* Ocultar información de depuración en producción */
+    .debug-info {
+        display: none;
+        background-color: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-family: monospace;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="page-header">
+    <div class="container-fluid">
+        <h2>@Model.Asignacion.Descripcion</h2>
+        <div class="page-subheader">Detalle de asignación #@Model.Asignacion.AsignacionId</div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="debug-info">
+        <p><strong>ID de asignación actual:</strong> @Model.NuevoDetalle.AsignacionId</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert-custom-danger">
+            <h5><i class="bi bi-exclamation-triangle-fill me-2"></i>Errores de validación:</h5>
+            <ul class="mb-0 mt-2">
+                @foreach (var entry in ViewData.ModelState)
+                {
+                    foreach (var error in entry.Value.Errors)
+                    {
+                        <li><strong>@entry.Key:</strong> @error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-plus-square me-2"></i>Agregar Nuevo Ítem
+                </div>
+                <div class="card-body">
+                    <form asp-action="AgregarDetalles" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="NuevoDetalle.AsignacionId" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group">
+                            <label for="NuevoDetalle_Concepto">Concepto</label>
+                            <input asp-for="NuevoDetalle.Concepto" class="form-control" required />
+                            <span asp-validation-for="NuevoDetalle.Concepto" class="validation-text"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="NuevoDetalle_Cantidad">Cantidad</label>
+                            <input asp-for="NuevoDetalle.Cantidad" class="form-control" type="number" required />
+                            <span asp-validation-for="NuevoDetalle.Cantidad" class="validation-text"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="NuevoDetalle_PrecioUnitario">Precio Unitario (Bs)</label>
+                            <input asp-for="NuevoDetalle.PrecioUnitario" class="form-control" type="number" step="0.01" required />
+                            <span asp-validation-for="NuevoDetalle.PrecioUnitario" class="validation-text"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imagen">Imagen del ítem</label>
+                            <input type="file" name="imagen" class="form-control" />
+                            <div class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Puedes dejar este campo vacío si no deseas subir una imagen.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom-primary w-100">
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Ítem
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="total-summary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Total de la asignación:</span>
+                    <span class="price-badge">Bs @Model.TotalAsignado</span>
+                </div>
+            </div>
+
+            <a asp-action="AsignarDonacion" asp-controller="Asignaciones" asp-route-id="@Model.Asignacion.AsignacionId" class="btn btn-custom-success w-100">
+                <i class="bi bi-cash-coin me-2"></i>Asignar más donaciones
+            </a>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-list-check me-2"></i>Detalles Registrados
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Concepto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Detalles.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-3">No hay detalles registrados</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Model.Detalles)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <img src="@item.ImagenUrl" alt="Imagen del ítem" class="img-thumbnail" style="max-width: 100px; max-height: 80px; object-fit: cover;" />
+                                            </td>
+                                            <td>@item.Concepto</td>
+                                            <td>@item.Cantidad</td>
+                                            <td>Bs @item.PrecioUnitario</td>
+                                            <td><strong>Bs @(item.Cantidad* item.PrecioUnitario)</strong></td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header secondary">
+                    <i class="bi bi-piggy-bank me-2"></i>Donaciones Asignadas
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-secondary mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID Donación</th>
+                                    <th>Monto Asignado</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.DonacionesAsignadas.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3">No hay donaciones asignadas</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var don in Model.DonacionesAsignadas)
+                                    {
+                                        <tr>
+                                            <td>@don.DonacionId</td>
+                                            <td><strong>Bs @don.MontoAsignado</strong></td>
+                                            <td>@don.FechaAsignacion?.ToShortDateString()</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        $(document).ready(function () {
+            $('#NuevoDetalle_Cantidad, #NuevoDetalle_PrecioUnitario').on('input', function () {
+                const cantidad = parseFloat($('#NuevoDetalle_Cantidad').val()) || 0;
+                const precio = parseFloat($('#NuevoDetalle_PrecioUnitario').val()) || 0;
+                const total = cantidad * precio;
+
+                if ($('#total-calculado').length === 0) {
+                    $('<div id="total-calculado" class="alert alert-info mt-3">' +
+                        'Total calculado: <strong>Bs ' + total.toFixed(2) + '</strong></div>')
+                        .insertAfter('#NuevoDetalle_PrecioUnitario');
+                } else {
+                    $('#total-calculado strong').text('Bs ' + total.toFixed(2));
+                }
+            });
+        });
+    </script>
+}
