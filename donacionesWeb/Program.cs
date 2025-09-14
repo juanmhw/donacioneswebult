@@ -2,8 +2,9 @@ using donacionesWeb.Controllers;
 using donacionesWeb.Services;
 using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Net.Http.Headers;
+using Microsoft.AspNetCore.DataProtection;
 using QuestPDF.Infrastructure;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -45,6 +46,12 @@ builder.Services.AddHttpClient("DonacionesApi", client =>
     client.DefaultRequestHeaders.Accept.Add(
         new MediaTypeWithQualityHeaderValue("application/json"));
 });
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/var/www/dp-keys"))
+    .SetApplicationName("DonacionesWeb");
+
+
 
 // Registra tus servicios
 builder.Services.AddScoped<UsuarioService>();
