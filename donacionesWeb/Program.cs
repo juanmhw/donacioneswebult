@@ -3,6 +3,7 @@ using donacionesWeb.Services;
 using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using QuestPDF.Infrastructure;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -10,7 +11,10 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1) Cargar variables de entorno (APIs, CORS, etc.)
+builder.Configuration.AddEnvironmentVariables();
+
+// 2) MVC + JSON
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -19,41 +23,57 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
-// Configuración de autenticación con cookie persistente
+// 3) Cookie Auth
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Auth/Login";
         options.LogoutPath = "/Auth/Logout";
         options.AccessDeniedPath = "/Home/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromDays(30); // Cookie válida por 30 días
-        options.SlidingExpiration = true; // Renueva el tiempo de expiración con cada actividad
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.SlidingExpiration = true;
     });
 
-// Configuración específica para CampaniaService
-builder.Services.AddHttpClient<CampaniaService>(client =>
+// 4) CORS (multi-origen vía FRONTEND_ORIGINS)
+builder.Services.AddCors(options =>
 {
-    client.BaseAddress = new Uri("http://localhost:5097/api/");
-    client.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
+    options.AddPolicy("PermitirFrontend", p =>
+    {
+        var raw = builder.Configuration["FRONTEND_ORIGINS"] ?? "http://localhost:5173,http://localhost:8080";
+        var origins = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        p.WithOrigins(origins)
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials();
+    });
 });
 
-
-// Configuración general para otros servicios
-builder.Services.AddHttpClient("DonacionesApi", client =>
+// 5) HttpClients NOMBRADOS (sin hardcodear localhost)
+builder.Services.AddHttpClient("SqlApi", (sp, client) =>
 {
-    client.BaseAddress = new Uri("http://localhost:5097/");
-    client.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = cfg["Apis:Sql"] ?? cfg["DONACIONES_API_BASE_URL"]
+        ?? throw new InvalidOperationException("Base URL SQL no configurada (Apis:Sql o DONACIONES_API_BASE_URL).");
+    client.BaseAddress = new Uri(baseUrl); // ej: http://donaciones-api:8080/api/
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
 
+builder.Services.AddHttpClient("MongoApi", (sp, client) =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = cfg["Apis:Mongo"] ?? cfg["MONGO_API_BASE_URL"]
+        ?? throw new InvalidOperationException("Base URL Mongo no configurada (Apis:Mongo o MONGO_API_BASE_URL).");
+    client.BaseAddress = new Uri(baseUrl); // ej: http://api-donaciones-mongo:8080/api/
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+
+// 6) DataProtection (usa volumen /var/www/dp-keys)
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/var/www/dp-keys"))
     .SetApplicationName("DonacionesWeb");
 
-
-
-// Registra tus servicios
+// 7) Registrar tus servicios (SCOPED). NO uses AddHttpClient<T> aquí.
+builder.Services.AddScoped<CampaniaService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<MensajeService>();
 builder.Services.AddScoped<SaldosDonacionService>();
@@ -65,36 +85,42 @@ builder.Services.AddScoped<DetallesAsignacionService>();
 builder.Services.AddScoped<AsignacionService>();
 builder.Services.AddScoped<RendicionCuentasController>();
 builder.Services.AddScoped<FeedbackService>();
-builder.Services.AddHttpClient<UsuarioRolService>();
-builder.Services.AddHttpClient<RolService>();
-builder.Services.AddHttpClient<MensajeService>();
-builder.Services.AddHttpClient<RespuestaMensajeService>();
+builder.Services.AddScoped<UsuarioRolService>();
+builder.Services.AddScoped<RolService>();
+
+// Extras
 builder.Services.AddSingleton<FirebaseStorageService>();
 builder.Services.AddHttpClient<SupabaseStorageService>();
 
-QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+QuestPDF.Settings.License = LicenseType.Community;
 
-// Nota: MensajeService estaba duplicado, lo he quitado
-
-// ... otros servicios
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 8) Proxy reverso (si usas Nginx delante)
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+// Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
 app.UseCors("PermitirFrontend");
 
-
+// Si usas solo HTTP dentro del contenedor, puedes comentar la siguiente
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
-
 app.UseRouting();
-
-app.UseAuthentication(); // Asegúrate de que esto esté antes de UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Health endpoint para Docker/Nginx
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapControllerRoute(
     name: "default",
@@ -102,20 +128,12 @@ app.MapControllerRoute(
 
 app.Run();
 
-app.Run();
-
-// Mover el conversor DateOnly aquí para que esté disponible globalmente
+// === Conversor global ===
 public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 {
     private const string Format = "yyyy-MM-dd";
-
     public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return DateOnly.Parse(reader.GetString());
-    }
-
+        => DateOnly.Parse(reader.GetString());
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(value.ToString(Format));
-    }
+        => writer.WriteStringValue(value.ToString(Format));
 }

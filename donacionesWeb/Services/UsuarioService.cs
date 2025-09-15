@@ -6,80 +6,69 @@ namespace donacionesWeb.Services
 {
     public class UsuarioService
     {
-        private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/Usuarios";
+        private readonly HttpClient _http;
 
-        public UsuarioService(HttpClient httpClient)
+        // Usamos la factory para obtener el cliente nombrado "SqlApi"
+        public UsuarioService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
+            _http = factory.CreateClient("SqlApi"); // BaseAddress termina en /api/
         }
 
+        // GET /api/Usuarios
         public async Task<List<Usuario>> GetUsuariosAsync()
         {
-            var response = await _httpClient.GetAsync(BaseUrl);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<Usuario>>() ?? new List<Usuario>();
+            var res = await _http.GetAsync("Usuarios");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<List<Usuario>>() ?? new List<Usuario>();
         }
 
+        // GET /api/Usuarios/{id}
         public async Task<Usuario> GetUsuarioByIdAsync(int id)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Usuario>() ?? throw new Exception("Error al deserializar usuario");
+            var res = await _http.GetAsync($"Usuarios/{id}");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Usuario>()
+                   ?? throw new Exception("Error al deserializar usuario");
         }
 
+        // POST /api/Usuarios
         public async Task<Usuario> CreateUsuarioAsync(Usuario usuario)
         {
             var json = JsonSerializer.Serialize(usuario);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(BaseUrl, content);
-
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Usuario>() ?? throw new Exception("Error al deserializar usuario");
+            var res = await _http.PostAsync("Usuarios", content);
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Usuario>()
+                   ?? throw new Exception("Error al deserializar usuario");
         }
 
+        // PUT /api/Usuarios/{id}
         public async Task<Usuario> UpdateUsuarioAsync(int id, Usuario usuario)
         {
             var json = JsonSerializer.Serialize(usuario);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"{BaseUrl}/{id}", content);
-
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Usuario>() ?? throw new Exception("Error al deserializar usuario");
+            var res = await _http.PutAsync($"Usuarios/{id}", content);
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Usuario>()
+                   ?? throw new Exception("Error al deserializar usuario");
         }
 
+        // DELETE /api/Usuarios/{id}
         public async Task<bool> DeleteUsuarioAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
-            return response.IsSuccessStatusCode;
+            var res = await _http.DeleteAsync($"Usuarios/{id}");
+            return res.IsSuccessStatusCode;
         }
 
+        // (Si tu API lo expone) GET /api/Usuarios/email/{email}
         public async Task<Usuario?> GetUsuarioByEmailAsync(string email)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{BaseUrl}/email/{email}");
+            var res = await _http.GetAsync($"Usuarios/email/{email}");
+            if (!res.IsSuccessStatusCode) return null;
 
-                // Registrar detalles de la respuesta
-                Console.WriteLine($"Respuesta de API para email {email}: {response.StatusCode}");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Error al obtener usuario por email: {response.StatusCode}");
-                    return null;
-                }
-
-                var content = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Contenido de respuesta: {content}");
-
-                return JsonSerializer.Deserialize<Usuario>(content,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Excepción al obtener usuario por email: {ex.Message}");
-                throw;
-            }
+            var content = await res.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Usuario>(
+                content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
     }
 }

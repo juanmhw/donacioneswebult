@@ -6,66 +6,76 @@ namespace donacionesWeb.Services
 {
     public class MensajeService
     {
-        private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/Mensajes";
+        private readonly HttpClient _http;
 
-        public MensajeService(HttpClient httpClient)
+        // Ahora pedimos la factory y creamos el cliente "SqlApi"
+        public MensajeService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
+            _http = factory.CreateClient("SqlApi");
         }
 
+        // Endpoints relativos sobre /api/
+        // => /api/Mensajes
         public async Task<List<Mensaje>> GetMensajesAsync()
         {
-            var response = await _httpClient.GetAsync(BaseUrl);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<Mensaje>>() ?? new List<Mensaje>();
+            var res = await _http.GetAsync("Mensajes");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<List<Mensaje>>() ?? new List<Mensaje>();
         }
 
+        // => /api/Mensajes/{id}
         public async Task<Mensaje> GetMensajeByIdAsync(int id)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Mensaje>() ?? throw new Exception("Error al deserializar mensaje");
+            var res = await _http.GetAsync($"Mensajes/{id}");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Mensaje>()
+                   ?? throw new Exception("Error al deserializar mensaje");
         }
 
+        // Si tu API expone estos endpoints:
+        // => /api/Mensajes/usuario-origen/{usuarioId}
         public async Task<List<Mensaje>> GetMensajesByUsuarioOrigenAsync(int usuarioId)
         {
-            // Asumiendo que has implementado este endpoint en tu API
-            var response = await _httpClient.GetAsync($"{BaseUrl}/usuario-origen/{usuarioId}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<Mensaje>>() ?? new List<Mensaje>();
+            var res = await _http.GetAsync($"Mensajes/usuario-origen/{usuarioId}");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<List<Mensaje>>() ?? new List<Mensaje>();
         }
 
+        // => /api/Mensajes/usuario-destino/{usuarioId}
         public async Task<List<Mensaje>> GetMensajesByUsuarioDestinoAsync(int usuarioId)
         {
-            // Asumiendo que has implementado este endpoint en tu API
-            var response = await _httpClient.GetAsync($"{BaseUrl}/usuario-destino/{usuarioId}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<Mensaje>>() ?? new List<Mensaje>();
+            var res = await _http.GetAsync($"Mensajes/usuario-destino/{usuarioId}");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<List<Mensaje>>() ?? new List<Mensaje>();
         }
 
+        // => POST /api/Mensajes
         public async Task<Mensaje> CreateMensajeAsync(Mensaje mensaje)
         {
             var json = JsonSerializer.Serialize(mensaje);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(BaseUrl, content);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Mensaje>() ?? throw new Exception("Error al deserializar mensaje");
+            var res = await _http.PostAsync("Mensajes", content);
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Mensaje>()
+                   ?? throw new Exception("Error al deserializar mensaje");
         }
 
+        // => PUT /api/Mensajes/{id}
         public async Task<Mensaje> UpdateMensajeAsync(int id, Mensaje mensaje)
         {
             var json = JsonSerializer.Serialize(mensaje);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"{BaseUrl}/{id}", content);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Mensaje>() ?? throw new Exception("Error al deserializar mensaje");
+            var res = await _http.PutAsync($"Mensajes/{id}", content);
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Mensaje>()
+                   ?? throw new Exception("Error al deserializar mensaje");
         }
 
+        // => DELETE /api/Mensajes/{id}
         public async Task<bool> DeleteMensajeAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
-            return response.IsSuccessStatusCode;
+            var res = await _http.DeleteAsync($"Mensajes/{id}");
+            return res.IsSuccessStatusCode;
         }
 
         public async Task<bool> MarcarComoLeidoAsync(int id)
@@ -77,10 +87,7 @@ namespace donacionesWeb.Services
                 await UpdateMensajeAsync(id, mensaje);
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
         public async Task<bool> MarcarComoRespondidoAsync(int id)
@@ -92,10 +99,7 @@ namespace donacionesWeb.Services
                 await UpdateMensajeAsync(id, mensaje);
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
     }
 }
