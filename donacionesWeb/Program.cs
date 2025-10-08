@@ -4,26 +4,38 @@ using donacionesWeb.Services.Firebase;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using QuestPDF.Infrastructure;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1) Cargar variables de entorno (APIs, CORS, etc.)
+// 1) Variables de entorno (APIs, CORS, etc.)
 builder.Configuration.AddEnvironmentVariables();
 
-// 2) MVC + JSON
-builder.Services.AddControllersWithViews()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    });
+// 2) MVC + JSON + Antiforgery global
+builder.Services.AddControllersWithViews(options =>
+{
+    // OWASP: auto-validar CSRF en toda acción modificadora (POST/PUT/PATCH/DELETE) de MVC
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 
-// 3) Cookie Auth
+// 2.1) Encoder seguro (evita XSS al renderizar texto en vistas)
+builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Latin1Supplement));
+
+// 3) Cookie Auth endurecida
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -32,7 +44,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Home/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
+
+        // OWASP: cookies seguras
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.Name = "DonacionesWeb.Auth";
     });
+
+// 3.1) CSRF para formularios/cookies (si usas SPA, envía X-CSRF-TOKEN en requests)
+builder.Services.AddAntiforgery(o =>
+{
+    o.HeaderName = "X-CSRF-TOKEN"; // útil para SPA
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Cookie.SameSite = SameSiteMode.Strict;
+    o.SuppressXFrameOptionsHeader = true; // ya lo seteamos nosotros
+});
 
 // 4) CORS (multi-origen vía FRONTEND_ORIGINS)
 builder.Services.AddCors(options =>
@@ -43,7 +71,7 @@ builder.Services.AddCors(options =>
         var origins = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         p.WithOrigins(origins)
          .AllowAnyHeader()
-         .AllowAnyMethod()
+         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
          .AllowCredentials();
     });
 });
@@ -72,7 +100,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/var/www/dp-keys"))
     .SetApplicationName("DonacionesWeb");
 
-// 7) Registrar tus servicios (SCOPED). NO uses AddHttpClient<T> aquí.
+// 7) Registrar servicios (SCOPED)
 builder.Services.AddScoped<CampaniaService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<MensajeService>();
@@ -94,34 +122,87 @@ builder.Services.AddHttpClient<SupabaseStorageService>();
 
 QuestPDF.Settings.License = LicenseType.Community;
 
+// 8) Seguridad transversal: HTTPS, HSTS y Rate Limiting
+builder.Services.AddHttpsRedirection(o =>
+{
+    o.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+    o.HttpsPort = 443;
+});
+
+builder.Services.AddHsts(o =>
+{
+    o.Preload = true;
+    o.IncludeSubDomains = true;
+    o.MaxAge = TimeSpan.FromDays(180);
+});
+
+// Rate limiting global por IP (anti-abuso)
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+    {
+        var key = ctx.Connection.RemoteIpAddress?.ToString() ?? "anon";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 120, // 120 req/min por IP
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 var app = builder.Build();
 
-// 8) Proxy reverso (si usas Nginx delante)
+// 9) Proxy reverso (si usas Nginx delante)
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-// Pipeline
+// 10) Manejo de errores y HSTS
 if (!app.Environment.IsDevelopment())
 {
+    // OWASP: error handler seguro (no expone stacktrace)
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseCors("PermitirFrontend");
-
-// Si usas solo HTTP dentro del contenedor, puedes comentar la siguiente
+// 11) Redirección a HTTPS
 app.UseHttpsRedirection();
 
+// 12) Cabeceras de seguridad (CSP, XFO, XCTO, RP, Permissions-Policy)
+app.Use(async (ctx, next) =>
+{
+    // Ajusta CSP según tus necesidades (scripts externos, CDNs, etc.)
+    ctx.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; " +
+        "img-src 'self' data: https:; " +
+        "script-src 'self'; " +
+        "style-src 'self' 'unsafe-inline'; " + // permite CSS inline si lo necesitas
+        "frame-ancestors 'none';";
+
+    ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    ctx.Response.Headers["X-Frame-Options"] = "DENY";
+    ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+
+    await next();
+});
+
+// 13) CORS, estáticos, routing, auth, rate limiting
+app.UseCors("PermitirFrontend");
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
-// Health endpoint para Docker/Nginx
+// 14) Health endpoint para Docker/Nginx
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
+// 15) Rutas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");
@@ -133,7 +214,7 @@ public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 {
     private const string Format = "yyyy-MM-dd";
     public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => DateOnly.Parse(reader.GetString());
+        => DateOnly.Parse(reader.GetString()!);
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
         => writer.WriteStringValue(value.ToString(Format));
 }
