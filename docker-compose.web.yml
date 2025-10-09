@@ -1,0 +1,20 @@
+services:
+  donaciones-web:
+    build: .
+    container_name: donaciones-web
+    env_file: .env
+    environment:
+      - SQL_API_BASE=${SQL_API_BASE}
+      - MONGO_API_BASE=${MONGO_API_BASE}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - DISABLE_HTTPS_REDIRECT=${DISABLE_HTTPS_REDIRECT}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - donaciones-net
+
+networks:
+  donaciones-net:
+    external: true

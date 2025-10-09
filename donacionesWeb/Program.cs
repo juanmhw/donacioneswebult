@@ -154,6 +154,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+app.Use((ctx, next) => { if (Environment.GetEnvironmentVariable("FORCE_HTTPS_SCHEME") == "true") ctx.Request.Scheme = "https"; return next(); });
 
 // 9) Proxy reverso (si usas Nginx delante)
 app.UseForwardedHeaders(new ForwardedHeadersOptions
