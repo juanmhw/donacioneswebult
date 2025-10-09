@@ -6,52 +6,58 @@ namespace donacionesWeb.Services
 {
     public class RolService
     {
-        private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://apidonacionesbeni.somee.com/api/Roles";
+        private readonly HttpClient _http;
 
-        public RolService(HttpClient httpClient)
+        // Usamos factory y el cliente nombrado "SqlApi" (BaseAddress termina en /api/)
+        public RolService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
+            _http = factory.CreateClient("SqlApi");
         }
 
+        // GET /api/Roles
         public async Task<List<Rol>> GetRolesAsync()
         {
-            var response = await _httpClient.GetAsync(BaseUrl);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<Rol>>() ?? new List<Rol>();
+            var res = await _http.GetAsync("Roles");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<List<Rol>>() ?? new List<Rol>();
         }
 
+        // GET /api/Roles/{id}
         public async Task<Rol> GetRolByIdAsync(int id)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Rol>() ?? throw new Exception("Error al deserializar rol");
+            var res = await _http.GetAsync($"Roles/{id}");
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Rol>()
+                   ?? throw new Exception("Error al deserializar rol");
         }
 
+        // POST /api/Roles
         public async Task<Rol> CreateRolAsync(Rol rol)
         {
             var json = JsonSerializer.Serialize(rol);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(BaseUrl, content);
-
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Rol>() ?? throw new Exception("Error al deserializar rol");
+            var res = await _http.PostAsync("Roles", content);
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Rol>()
+                   ?? throw new Exception("Error al deserializar rol");
         }
 
+        // PUT /api/Roles/{id}
         public async Task<Rol> UpdateRolAsync(int id, Rol rol)
         {
             var json = JsonSerializer.Serialize(rol);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"{BaseUrl}/{id}", content);
-
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Rol>() ?? throw new Exception("Error al deserializar rol");
+            var res = await _http.PutAsync($"Roles/{id}", content);
+            res.EnsureSuccessStatusCode();
+            return await res.Content.ReadFromJsonAsync<Rol>()
+                   ?? throw new Exception("Error al deserializar rol");
         }
 
+        // DELETE /api/Roles/{id}
         public async Task<bool> DeleteRolAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
-            return response.IsSuccessStatusCode;
+            var res = await _http.DeleteAsync($"Roles/{id}");
+            return res.IsSuccessStatusCode;
         }
     }
 }

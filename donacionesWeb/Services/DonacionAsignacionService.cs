@@ -7,53 +7,55 @@ namespace donacionesWeb.Services
 {
     public class DonacionAsignacionService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
 
-        public DonacionAsignacionService(HttpClient httpClient)
+        public DonacionAsignacionService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/"); // ✅ BaseAddress obligatoria
+            _http = factory.CreateClient("SqlApi");
+            // BaseAddress ya debe estar configurada en Program.cs → termina en /api/
         }
 
-        // Obtener todas las asignaciones de donaciones
-        public async Task<List<DonacionesAsignacione>> GetAllAsync()
+        private static readonly JsonSerializerOptions _jsonOptions = new()
         {
-            var response = await _httpClient.GetAsync("DonacionesAsignaciones");
-            response.EnsureSuccessStatusCode();
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
+        };
 
-            return await response.Content.ReadFromJsonAsync<List<DonacionesAsignacione>>() ?? new List<DonacionesAsignacione>();
+        // GET /api/DonacionesAsignaciones
+        public async Task<List<DonacionesAsignacione>> GetAllAsync(CancellationToken ct = default)
+        {
+            var res = await _http.GetAsync("DonacionesAsignaciones", ct);
+            res.EnsureSuccessStatusCode();
+
+            return await res.Content.ReadFromJsonAsync<List<DonacionesAsignacione>>(_jsonOptions, ct)
+                   ?? new List<DonacionesAsignacione>();
         }
 
-        // Crear nueva asignación de donación
-        public async Task CreateAsync(DonacionesAsignacione model)
+        // POST /api/DonacionesAsignaciones
+        public async Task<DonacionesAsignacione> CreateAsync(DonacionesAsignacione model, CancellationToken ct = default)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            var json = JsonSerializer.Serialize(model, options);
-            Console.WriteLine("📤 Enviando DonacionAsignacion:");
-            Console.WriteLine(json);
-
+            var json = JsonSerializer.Serialize(model, _jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("DonacionesAsignaciones", content);
 
-            if (!response.IsSuccessStatusCode)
+            var res = await _http.PostAsync("DonacionesAsignaciones", content, ct);
+
+            if (!res.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"❌ Error al guardar: {response.StatusCode} - {errorContent}");
+                var errorContent = await res.Content.ReadAsStringAsync(ct);
                 throw new Exception($"Error al guardar la asignación de donación: {errorContent}");
             }
 
-            Console.WriteLine("✅ Donación asignada correctamente en la API.");
+            // Devuelve la asignación creada si la API retorna JSON, 
+            // si no, devolvemos el mismo modelo
+            var created = await res.Content.ReadFromJsonAsync<DonacionesAsignacione>(_jsonOptions, ct);
+            return created ?? model;
         }
 
-        // Eliminar asignación (opcional)
-        public async Task<bool> DeleteAsync(int id)
+        // DELETE /api/DonacionesAsignaciones/{id}
+        public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
         {
-            var response = await _httpClient.DeleteAsync($"DonacionesAsignaciones/{id}");
-            return response.IsSuccessStatusCode;
+            var res = await _http.DeleteAsync($"DonacionesAsignaciones/{id}", ct);
+            return res.IsSuccessStatusCode;
         }
     }
 }

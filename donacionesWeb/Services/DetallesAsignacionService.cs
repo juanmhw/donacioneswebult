@@ -7,62 +7,64 @@ namespace donacionesWeb.Services
 {
     public class DetallesAsignacionService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
 
-        public DetallesAsignacionService(HttpClient httpClient)
+        public DetallesAsignacionService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/");
+            _http = factory.CreateClient("SqlApi");
+            // BaseAddress ya configurada en Program.cs y debe terminar en /api/
         }
 
-        // Obtener todos los detalles
-        public async Task<List<DetallesAsignacion>> GetDetallesAsync()
+        private static readonly JsonSerializerOptions _jsonOptions = new()
         {
-            var response = await _httpClient.GetAsync("DetallesAsignacions");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<DetallesAsignacion>>() ?? new List<DetallesAsignacion>();
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
+        };
+
+        // GET /api/DetallesAsignacions
+        public async Task<List<DetallesAsignacion>> GetDetallesAsync(CancellationToken ct = default)
+        {
+            var res = await _http.GetAsync("DetallesAsignacions", ct);
+            res.EnsureSuccessStatusCode();
+
+            return await res.Content.ReadFromJsonAsync<List<DetallesAsignacion>>(_jsonOptions, ct)
+                   ?? new List<DetallesAsignacion>();
         }
 
-        // Obtener detalles por asignación específica
-        public async Task<List<DetallesAsignacion>> GetByAsignacionAsync(int asignacionId)
+        // GET /api/DetallesAsignacions/asignacion/{asignacionId}
+        public async Task<List<DetallesAsignacion>> GetByAsignacionAsync(int asignacionId, CancellationToken ct = default)
         {
-            var response = await _httpClient.GetAsync($"DetallesAsignacions/asignacion/{asignacionId}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<DetallesAsignacion>>() ?? new List<DetallesAsignacion>();
+            var res = await _http.GetAsync($"DetallesAsignacions/asignacion/{asignacionId}", ct);
+            res.EnsureSuccessStatusCode();
+
+            return await res.Content.ReadFromJsonAsync<List<DetallesAsignacion>>(_jsonOptions, ct)
+                   ?? new List<DetallesAsignacion>();
         }
 
-        // Crear nuevo detalle con log
-        public async Task CreateDetalleAsync(DetallesAsignacion detalle)
+        // POST /api/DetallesAsignacions
+        public async Task<DetallesAsignacion> CreateDetalleAsync(DetallesAsignacion detalle, CancellationToken ct = default)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            var json = JsonSerializer.Serialize(detalle, options);
-            Console.WriteLine("📤 [POST] Enviando detalle a la API:");
-            Console.WriteLine(json);
-
+            var json = JsonSerializer.Serialize(detalle, _jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("DetallesAsignacions", content);
 
-            Console.WriteLine($"📥 Respuesta de la API: {(int)response.StatusCode} - {response.StatusCode}");
+            var res = await _http.PostAsync("DetallesAsignacions", content, ct);
 
-            if (!response.IsSuccessStatusCode)
+            if (!res.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"❌ Error al crear detalle: {errorContent}");
-                throw new Exception($"Error al crear el detalle: {errorContent}");
+                var error = await res.Content.ReadAsStringAsync(ct);
+                throw new Exception($"Error al crear el detalle: {error}");
             }
 
-            Console.WriteLine("✅ Detalle creado correctamente.");
+            // Devuelve el detalle creado si la API responde con JSON, si no, devolvemos el payload original
+            var created = await res.Content.ReadFromJsonAsync<DetallesAsignacion>(_jsonOptions, ct);
+            return created ?? detalle;
         }
 
-        // Eliminar detalle por ID
-        public async Task<bool> DeleteDetalleAsync(int id)
+        // DELETE /api/DetallesAsignacions/{id}
+        public async Task<bool> DeleteDetalleAsync(int id, CancellationToken ct = default)
         {
-            var response = await _httpClient.DeleteAsync($"DetallesAsignacions/{id}");
-            return response.IsSuccessStatusCode;
+            var res = await _http.DeleteAsync($"DetallesAsignacions/{id}", ct);
+            return res.IsSuccessStatusCode;
         }
     }
 }

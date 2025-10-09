@@ -1,6 +1,5 @@
 ﻿using donacionesWeb.Models;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
 namespace donacionesWeb.Services
@@ -8,25 +7,22 @@ namespace donacionesWeb.Services
     public class FeedbackService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiUrl = "http://www.apimongo.somee.com/api/Comentarios";
 
-        public FeedbackService(HttpClient httpClient)
+        public FeedbackService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
+            _httpClient = factory.CreateClient("MongoApi");
         }
 
         public async Task<List<Feedback>> GetAllFeedbacksAsync()
         {
             try
             {
-                var response = await _httpClient.GetAsync(_apiUrl);
+                var response = await _httpClient.GetAsync("Comentarios");
                 response.EnsureSuccessStatusCode();
-                var feedbacks = await response.Content.ReadFromJsonAsync<List<Feedback>>();
-                return feedbacks ?? new List<Feedback>();
+                return await response.Content.ReadFromJsonAsync<List<Feedback>>() ?? new List<Feedback>();
             }
             catch (Exception ex)
             {
-                // En producción debería registrarse el error
                 Console.WriteLine($"Error obteniendo feedbacks: {ex.Message}");
                 return new List<Feedback>();
             }
@@ -36,12 +32,8 @@ namespace donacionesWeb.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync(_apiUrl);
-                response.EnsureSuccessStatusCode();
-                var allFeedbacks = await response.Content.ReadFromJsonAsync<List<Feedback>>();
-
-                // Filtrar por usuario ID
-                return allFeedbacks?.Where(f => f.UsuarioId == usuarioId).ToList() ?? new List<Feedback>();
+                var allFeedbacks = await GetAllFeedbacksAsync();
+                return allFeedbacks.Where(f => f.UsuarioId == usuarioId).ToList();
             }
             catch (Exception ex)
             {
@@ -54,7 +46,7 @@ namespace donacionesWeb.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_apiUrl}/{id}");
+                var response = await _httpClient.GetAsync($"Comentarios/{id}");
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadFromJsonAsync<Feedback>();
             }
@@ -69,12 +61,7 @@ namespace donacionesWeb.Services
         {
             try
             {
-                var jsonContent = new StringContent(
-                    JsonSerializer.Serialize(feedback),
-                    Encoding.UTF8,
-                    "application/json");
-
-                var response = await _httpClient.PostAsync(_apiUrl, jsonContent);
+                var response = await _httpClient.PostAsJsonAsync("Comentarios", feedback);
                 response.EnsureSuccessStatusCode();
                 return true;
             }

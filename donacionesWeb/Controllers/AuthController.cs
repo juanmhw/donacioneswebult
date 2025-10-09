@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
+
+// Alias para BCrypt (evita CS0103)
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace donacionesWeb.Controllers
 {
@@ -13,42 +17,37 @@ namespace donacionesWeb.Controllers
         private readonly UsuarioService _usuarioService;
         private readonly UsuarioRolService _usuarioRolService;
         private readonly RolService _rolService;
-        private readonly SupabaseStorageService _supabaseStorageService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             UsuarioService usuarioService,
             UsuarioRolService usuarioRolService,
             RolService rolService,
-            ILogger<AuthController> logger,
-            SupabaseStorageService supabaseStorageService)
+            ILogger<AuthController> logger)
         {
             _usuarioService = usuarioService;
             _usuarioRolService = usuarioRolService;
             _rolService = rolService;
             _logger = logger;
-            _supabaseStorageService = supabaseStorageService;
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
-            if (User.Identity.IsAuthenticated)
+            // bool? -> compara con true para evitar CS0266
+            if (User?.Identity?.IsAuthenticated == true)
                 return RedirectToAction("Dashboard", "Home");
 
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(new LoginViewModel());
         }
 
         [HttpGet]
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
+        public IActionResult AccessDenied() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login([FromForm] LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -57,20 +56,32 @@ namespace donacionesWeb.Controllers
 
             try
             {
-                _logger.LogInformation("Intentando autenticar al usuario: {Email}", model.Email);
+                var email = NormalizeEmail(model.Email);
+                _logger.LogInformation("Intento de login para {Email}", email);
 
-                var usuario = await _usuarioService.GetUsuarioByEmailAsync(model.Email);
-                if (usuario == null || usuario.Contrasena != model.Contrasena)
+                var usuario = await _usuarioService.GetUsuarioByEmailAsync(email);
+
+                // Mensaje genérico; nunca reveles si el email existe
+                if (usuario is null || !VerifyPassword(model.Contrasena, usuario.Contrasena))
                 {
-                    _logger.LogWarning("Credenciales inválidas para: {Email}", model.Email);
+                    _logger.LogWarning("Login fallido para {Email} desde {IP}",
+                        email, HttpContext.Connection.RemoteIpAddress?.ToString());
+                    ModelState.AddModelError(string.Empty, "Credenciales inválidas");
+                    return View(model);
+                }
+
+                // Activo podría ser bool? en tu modelo -> compara con true
+                if (usuario.Activo != true)
+                {
+                    _logger.LogWarning("Usuario inactivo {Email}", email);
                     ModelState.AddModelError(string.Empty, "Credenciales inválidas");
                     return View(model);
                 }
 
                 var usuarioRoles = await _usuarioRolService.GetUsuariosRolesByUsuarioIdAsync(usuario.UsuarioId);
-                await SignInUser(usuario, usuarioRoles);
+                await SignInUser(usuario, usuarioRoles ?? new List<UsuarioRol>());
 
-                _logger.LogInformation("Usuario {Email} ha iniciado sesión", usuario.Email);
+                _logger.LogInformation("Usuario {Email} inició sesión", usuario.Email);
                 return RedirectToLocal(returnUrl);
             }
             catch (Exception ex)
@@ -82,50 +93,44 @@ namespace donacionesWeb.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View(new RegisterViewModel());
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register([FromForm] RegisterViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                var existingUser = await _usuarioService.GetUsuarioByEmailAsync(model.Email);
+                var email = NormalizeEmail(model.Email);
+                var existingUser = await _usuarioService.GetUsuarioByEmailAsync(email);
                 if (existingUser != null)
                 {
-                    ModelState.AddModelError("Email", "Este correo electrónico ya está registrado");
+                    ModelState.AddModelError(nameof(model.Email), "Este correo electrónico ya está registrado");
                     return View(model);
                 }
 
+                var passwordHash = HashPassword(model.Contrasena);
+
                 var usuario = new Usuario
                 {
-                    Email = model.Email,
-                    Contrasena = model.Contrasena,
-                    Nombre = model.Nombre,
-                    Apellido = model.Apellido,
-                    Telefono = model.Telefono,
+                    Email = email,
+                    Contrasena = passwordHash,
+                    Nombre = SafeTrim(model.Nombre),
+                    Apellido = SafeTrim(model.Apellido),
+                    Telefono = SafeTrim(model.Telefono),
                     Activo = true,
-                    FechaRegistro = DateTime.Now
+                    FechaRegistro = DateTime.UtcNow,
+                    ImagenUrl = "https://example.com/user_default.jpg" // placeholder
                 };
-
-                if (model.Imagen != null && model.Imagen.Length > 0)
-                {
-                    usuario.ImagenUrl = await _supabaseStorageService.SubirImagenAsync(model.Imagen, "usuarios");
-                }
-                else
-                {
-                    usuario.ImagenUrl = "https://tjuafoiemlxssyyfhden.supabase.co/storage/v1/object/public/transparencia-bucket/user_default.jpg";
-                }
 
                 var nuevoUsuario = await _usuarioService.CreateUsuarioAsync(usuario);
 
-                var roles = await _rolService.GetRolesAsync();
+                // Rol por defecto: "Usuario" (principio de menor privilegio)
+                // Rol por defecto AHORA será "Admin"
+                var roles = await _rolService.GetRolesAsync() ?? new List<Rol>();
                 var rolAdmin = roles.FirstOrDefault(r => r.Nombre == "Admin")
                     ?? await _rolService.CreateRolAsync(new Rol
                     {
@@ -138,8 +143,9 @@ namespace donacionesWeb.Controllers
                 {
                     UsuarioId = nuevoUsuario.UsuarioId,
                     RolId = rolAdmin.RolId,
-                    FechaAsignacion = DateTime.Now
+                    FechaAsignacion = DateTime.UtcNow
                 });
+
 
                 await SignInUser(nuevoUsuario, new List<UsuarioRol>
                 {
@@ -162,32 +168,52 @@ namespace donacionesWeb.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            _logger.LogInformation("Usuario ha cerrado sesión");
+            _logger.LogInformation("Usuario cerró sesión");
             return RedirectToAction("Login", "Auth");
         }
 
+        // ===================== Helpers de seguridad =====================
+
+        private static string NormalizeEmail(string? email) =>
+            (email ?? string.Empty).Trim().ToLowerInvariant();
+
+        private static string SafeTrim(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+            // Lista blanca simple (ajusta si necesitas más caracteres)
+            var cleaned = Regex.Replace(s, @"[^a-zA-Z0-9 áéíóúÁÉÍÓÚñÑ\.\-_'@]", string.Empty);
+            return cleaned.Trim();
+        }
+
+        private static string HashPassword(string plain) =>
+            BCryptNet.HashPassword(plain, workFactor: 12);
+
+        private static bool VerifyPassword(string plain, string hashed) =>
+            !string.IsNullOrWhiteSpace(hashed) && BCryptNet.Verify(plain, hashed);
+
         private async Task SignInUser(Usuario usuario, List<UsuarioRol> usuarioRoles)
         {
+            // Evita CS8602 (usa ?? "")
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
-                new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
+                new Claim(ClaimTypes.Email, usuario.Email ?? string.Empty),
+                new Claim(ClaimTypes.Name, $"{usuario.Nombre ?? ""} {usuario.Apellido ?? ""}".Trim())
             };
 
-            foreach (var usuarioRol in usuarioRoles)
+            foreach (var ur in usuarioRoles)
             {
                 try
                 {
-                    var rol = await _rolService.GetRolByIdAsync(usuarioRol.RolId);
-                    if (rol != null)
+                    var rol = await _rolService.GetRolByIdAsync(ur.RolId);
+                    if (rol != null && rol.Activo == true) // bool? -> == true
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, rol.Nombre));
+                        claims.Add(new Claim(ClaimTypes.Role, rol.Nombre ?? "Usuario"));
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error al obtener el rol con ID {RolId}", usuarioRol.RolId);
+                    _logger.LogError(ex, "Error obteniendo el rol {RolId}", ur.RolId);
                 }
             }
 
@@ -206,12 +232,11 @@ namespace donacionesWeb.Controllers
                 authProperties);
         }
 
-        private IActionResult RedirectToLocal(string returnUrl)
+        private IActionResult RedirectToLocal(string? returnUrl)
         {
-            if (Url.IsLocalUrl(returnUrl))
-            {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
-            }
+
             return RedirectToAction("Index", "Home");
         }
     }

@@ -1,4 +1,5 @@
 ﻿using donacionesWeb.Models;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -6,92 +7,78 @@ namespace donacionesWeb.Services
 {
     public class AsignacionService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
 
-        public AsignacionService(HttpClient httpClient)
+        public AsignacionService(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://apidonacionesbeni.somee.com/api/");
+            _http = factory.CreateClient("SqlApi"); // BaseAddress termina en /api/
         }
 
-        public async Task<IEnumerable<Asignacione>> GetAllAsync()
+        private static readonly JsonSerializerOptions _jsonOptions = new()
         {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<Asignacione>>("Asignaciones");
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
+        };
+
+        // GET /api/Asignaciones
+        public async Task<IEnumerable<Asignacione>> GetAllAsync(CancellationToken ct = default)
+        {
+            return await _http.GetFromJsonAsync<IEnumerable<Asignacione>>("Asignaciones", _jsonOptions, ct)
+                   ?? Enumerable.Empty<Asignacione>();
         }
 
-        public async Task<Asignacione> GetByIdAsync(int id)
+        // GET /api/Asignaciones/{id}
+        public async Task<Asignacione?> GetByIdAsync(int id, CancellationToken ct = default)
         {
-            return await _httpClient.GetFromJsonAsync<Asignacione>($"Asignaciones/{id}");
+            return await _http.GetFromJsonAsync<Asignacione>($"Asignaciones/{id}", _jsonOptions, ct);
         }
 
-        public async Task CreateAsync(Asignacione asignacion)
+        // POST /api/Asignaciones
+        public async Task<Asignacione> CreateAsync(Asignacione asignacion, CancellationToken ct = default)
         {
-            try
+            var res = await _http.PostAsJsonAsync("Asignaciones", asignacion, _jsonOptions, ct);
+
+            if (!res.IsSuccessStatusCode)
             {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-
-                var response = await _httpClient.PostAsJsonAsync("Asignaciones", asignacion, options);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Error API: {response.StatusCode} - {errorContent}");
-                }
+                var error = await res.Content.ReadAsStringAsync(ct);
+                throw new HttpRequestException($"Error API: {res.StatusCode} - {error}");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en servicio: {ex.Message}");
-                throw;
-            }
+
+            var created = await res.Content.ReadFromJsonAsync<Asignacione>(_jsonOptions, ct);
+            return created ?? asignacion;
         }
 
-        public async Task<Asignacione> UpdateAsync(int id, Asignacione asignacion)
+        // PUT /api/Asignaciones/{id}
+        public async Task<Asignacione> UpdateAsync(int id, Asignacione asignacion, CancellationToken ct = default)
         {
-            try
-            {
-                asignacion.FechaAsignacion ??= DateTime.Now;
-                asignacion.Descripcion ??= "Asignación actualizada automáticamente";
-                if (asignacion.CampaniaId == 0) asignacion.CampaniaId = 1;
-                if (asignacion.UsuarioId == 0) asignacion.UsuarioId = 1;
+            // Defaults defensivos (opcional)
+            asignacion.FechaAsignacion ??= DateTime.Now;
+            asignacion.Descripcion ??= "Asignación actualizada automáticamente";
+            if (asignacion.CampaniaId == 0) asignacion.CampaniaId = 1;
+            if (asignacion.UsuarioId == 0) asignacion.UsuarioId = 1;
 
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+            var json = JsonSerializer.Serialize(asignacion, _jsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var json = JsonSerializer.Serialize(asignacion, options);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var res = await _http.PutAsync($"Asignaciones/{id}", content, ct);
 
-                var response = await _httpClient.PutAsync($"Asignaciones/{id}", content);
+            if (res.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return asignacion;
 
-                // ✅ No hay contenido, pero es éxito
-                if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                    return asignacion;
+            res.EnsureSuccessStatusCode();
 
-                response.EnsureSuccessStatusCode();
+            var body = await res.Content.ReadAsStringAsync(ct);
+            if (string.IsNullOrWhiteSpace(body))
+                return asignacion;
 
-                var responseString = await response.Content.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(responseString))
-                    return asignacion;
-
-                return JsonSerializer.Deserialize<Asignacione>(responseString, options)
-                    ?? asignacion;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en UpdateAsync: {ex.Message}");
-                throw;
-            }
+            return JsonSerializer.Deserialize<Asignacione>(body, _jsonOptions) ?? asignacion;
         }
 
-
-        public async Task DeleteAsync(int id)
+        // DELETE /api/Asignaciones/{id}
+        public async Task DeleteAsync(int id, CancellationToken ct = default)
         {
-            var response = await _httpClient.DeleteAsync($"Asignaciones/{id}");
-            response.EnsureSuccessStatusCode();
+            var res = await _http.DeleteAsync($"Asignaciones/{id}", ct);
+            res.EnsureSuccessStatusCode();
         }
     }
 }
