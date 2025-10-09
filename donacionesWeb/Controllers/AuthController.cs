@@ -129,25 +129,27 @@ namespace donacionesWeb.Controllers
                 var nuevoUsuario = await _usuarioService.CreateUsuarioAsync(usuario);
 
                 // Rol por defecto: "Usuario" (principio de menor privilegio)
+                // Rol por defecto AHORA será "Admin"
                 var roles = await _rolService.GetRolesAsync() ?? new List<Rol>();
-                var rolUsuario = roles.FirstOrDefault(r => r.Nombre == "Usuario")
+                var rolAdmin = roles.FirstOrDefault(r => r.Nombre == "Admin")
                     ?? await _rolService.CreateRolAsync(new Rol
                     {
-                        Nombre = "Usuario",
-                        Descripcion = "Rol básico de la plataforma",
+                        Nombre = "Admin",
+                        Descripcion = "Administrador del sistema",
                         Activo = true
                     });
 
                 await _usuarioRolService.CreateUsuarioRolAsync(new UsuarioRol
                 {
                     UsuarioId = nuevoUsuario.UsuarioId,
-                    RolId = rolUsuario.RolId,
+                    RolId = rolAdmin.RolId,
                     FechaAsignacion = DateTime.UtcNow
                 });
 
+
                 await SignInUser(nuevoUsuario, new List<UsuarioRol>
                 {
-                    new UsuarioRol { UsuarioId = nuevoUsuario.UsuarioId, RolId = rolUsuario.RolId }
+                    new UsuarioRol { UsuarioId = nuevoUsuario.UsuarioId, RolId = rolAdmin.RolId }
                 });
 
                 TempData["SuccessMessage"] = "Usuario registrado correctamente";
